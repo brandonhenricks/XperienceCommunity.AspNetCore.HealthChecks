@@ -16,6 +16,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks
         public static IServiceCollection AddKenticoHealthChecks(this IServiceCollection services)
         {
             services.AddHealthChecks()
+                .AddCheck<SiteConfigurationHealthCheck>("Site Presentation Url Health Check")
                 .AddCheck<SearchTaskHealthCheck>("Search Task Health Check")
                 .AddCheck<WebFarmHealthCheck>("Web Farm Health Check");
 

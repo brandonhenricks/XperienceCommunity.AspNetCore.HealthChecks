@@ -3,6 +3,9 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 {
+    /// <summary>
+    /// WebFarm Health Check
+    /// </summary>
     public sealed class WebFarmHealthCheck : IHealthCheck
     {
         private readonly IWebFarmServerInfoProvider _webFarmServerInfoProvider;

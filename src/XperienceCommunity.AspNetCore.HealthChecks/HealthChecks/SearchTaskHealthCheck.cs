@@ -15,16 +15,18 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context,
             CancellationToken cancellationToken = new CancellationToken())
         {
-            var tasks = _searchTaskInfoProvider.Get().ToList();
-
-            var taskErrors = tasks.Where(x => !string.IsNullOrWhiteSpace(x.SearchTaskErrorMessage)).ToList();
-
-            if (taskErrors.Any())
+            try
             {
-                return new HealthCheckResult(HealthStatus.Unhealthy, "Search Tasks Contain Errors.");
-            }
+                var tasks = _searchTaskInfoProvider.Get().ToList();
 
-            return new HealthCheckResult(HealthStatus.Healthy, "Search Tasks Healthy.");
+                var taskErrors = tasks.Where(x => !string.IsNullOrWhiteSpace(x.SearchTaskErrorMessage)).ToList();
+
+                return taskErrors.Any() ? new HealthCheckResult(HealthStatus.Unhealthy, "Search Tasks Contain Errors.") : new HealthCheckResult(HealthStatus.Healthy, "Search Tasks Healthy.");
+            }
+            catch (Exception e)
+            {
+                return new HealthCheckResult(HealthStatus.Unhealthy, "An exception was thrown.", e);
+            }
         }
     }
 }
