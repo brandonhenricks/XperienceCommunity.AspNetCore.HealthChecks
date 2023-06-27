@@ -1,12 +1,18 @@
 {
-  "version": 1,
+  "version": 2,
   "dependencies": {
     "net6.0": {
+      "CSharpFunctionalExtensions": {
+        "type": "Direct",
+        "requested": "[2.35.0, )",
+        "resolved": "2.35.0",
+        "contentHash": "UAcu1xWx45mCFaXm3yXt8jOoHs5U2cP/QVhH72/rq//nuNC+BY1WnipKinrf6LVh41KdQ9dokmCgxvR285an2g=="
+      },
       "Kentico.Xperience.Libraries": {
         "type": "Direct",
-        "requested": "[13.0.0, )",
-        "resolved": "13.0.0",
-        "contentHash": "ox3So3O9GW+8n9q0tIZHI2Mr2BYXjF4VvjxOuJNw1V6V8gdJ89sc00AkkngHs3dtPLAhqcxHWwnm5ZJ74+cQVg==",
+        "requested": "[13.0.16, 13.1.0)",
+        "resolved": "13.0.16",
+        "contentHash": "Q8DGTS3zpt9yHttMQQfJDQ04HbLVD46gxUyBOIchl9ajsRvBaSHcf2KPnB/CXlvRSgxMTLi8yNfkrh/KtYqRyA==",
         "dependencies": {
           "AWSSDK.Core": "3.5.1.13",
           "AWSSDK.S3": "3.5.1.4",
