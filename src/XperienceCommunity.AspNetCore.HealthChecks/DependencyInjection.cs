@@ -8,19 +8,24 @@ namespace XperienceCommunity.AspNetCore.HealthChecks
     /// </summary>
     public static class DependencyInjection
     {
+        private const string Kentico = "Kentico";
+        private static readonly string[] _tags = new[] {Kentico};
+
         /// <summary>
         /// Adds Kentico Specific Health Checks
         /// </summary>
         /// <param name="services"></param>
         /// <returns></returns>
-        public static IServiceCollection AddKenticoHealthChecks(this IServiceCollection services)
+        public static IHealthChecksBuilder AddKenticoHealthChecks(this IServiceCollection services)
         {
-            services.AddHealthChecks()
-                .AddCheck<SiteConfigurationHealthCheck>("Site Presentation Url Health Check")
-                .AddCheck<SearchTaskHealthCheck>("Search Task Health Check")
-                .AddCheck<WebFarmHealthCheck>("Web Farm Health Check");
-
-            return services;
+            return services
+                .AddHealthChecks()
+                .AddCheck<SiteConfigurationHealthCheck>("Site Presentation Url Health Check", tags: _tags)
+                .AddCheck<EventLogHealthCheck>("Search Task Health Check", tags: _tags)
+                .AddCheck<WebFarmHealthCheck>("Web Farm Health Check", tags: _tags)
+                .AddCheck<AzureSearchTaskHealthCheck>("Azure Search Task Health Checks", tags: _tags)
+                .AddCheck<WebFarmTaskHealthCheck>("Web Farm Task Health Check", tags: _tags)
+                .AddCheck<LocalSearchTaskHealthCheck>("Local Task Health Check", tags: _tags);
         }
     }
 }

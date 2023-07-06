@@ -1,78 +1,34 @@
-﻿using CMS.SiteProvider;
-using Microsoft.AspNetCore.Http;
+﻿using System.Data;
+using CMS.SiteProvider;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 {
-    /// <summary>
-    /// Site Configuration Health Check
-    /// </summary>
-    /// <remarks>Determines if the Presentation Url Is Configured for the executing context.</remarks>
-    public sealed class SiteConfigurationHealthCheck : IHealthCheck
+    public sealed class SiteConfigurationHealthCheck: IHealthCheck
     {
         private readonly ISiteInfoProvider _siteInfoProvider;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public SiteConfigurationHealthCheck(ISiteInfoProvider siteInfoProvider,
-            IHttpContextAccessor httpContextAccessor)
+        public SiteConfigurationHealthCheck(ISiteInfoProvider siteInfoProvider)
         {
             _siteInfoProvider = siteInfoProvider;
-            _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context,
-            CancellationToken cancellationToken = new CancellationToken())
+        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())
         {
-            var sites = _siteInfoProvider.Get().ToList();
-            var domain = _httpContextAccessor.HttpContext.Request.Host;
-
-            if (!sites.Any())
+            try
             {
-                return new HealthCheckResult(HealthStatus.Unhealthy, "There are no sites configured.");
-            }
+                var siteResult = await _siteInfoProvider.Get()
+                    .GetEnumerableTypedResultAsync(CommandBehavior.CloseConnection, true, cancellationToken)
+                    .ConfigureAwait(false);
+                
+                var sites = siteResult.ToList();
 
-            if (sites.Count == 1)
+                return !sites.Any() ? new HealthCheckResult(HealthStatus.Unhealthy, "There are no sites configured.") : new HealthCheckResult(HealthStatus.Healthy, "Sites have been added to the CMS.");
+            }
+            catch (Exception e)
             {
-                var site = sites.FirstOrDefault();
-
-                if (HasUrlRegistered(site!, domain.Host))
-                {
-                    return new HealthCheckResult(HealthStatus.Healthy, "Site Registration Found.");
-                }
-
-                return new HealthCheckResult(HealthStatus.Unhealthy, "Site Presentation Url is not configured.");
+                return new HealthCheckResult(HealthStatus.Unhealthy, e.Message, e);
             }
-
-            var urls = sites.Select(GetPresentationUrls).ToList();
-
-            if (urls.Any(x => x.Contains(domain.Host, StringComparer.InvariantCultureIgnoreCase)))
-            {
-                return new HealthCheckResult(HealthStatus.Healthy, "Site Registration Found.");
-            }
-
-            return new HealthCheckResult(HealthStatus.Unhealthy, "Site Presentation Url is not configured.");
-        }
-
-        private static HashSet<string> GetPresentationUrls(SiteInfo siteInfo)
-        {
-            var urlHash = new HashSet<string> {siteInfo.SitePresentationURL};
-
-            foreach (var alias in siteInfo.LiveSiteAliases)
-            {
-                urlHash.Add(alias.SiteDomainPresentationUrl);
-            }
-
-            return urlHash;
-        }
-
-        private static bool HasUrlRegistered(SiteInfo siteInfo, string url)
-        {
-            if (siteInfo.SitePresentationURL.Contains(url, StringComparison.InvariantCultureIgnoreCase))
-            {
-                return true;
-            }
-
-            return siteInfo.LiveSiteAliases.Any(aliasUrl => aliasUrl.SiteDomainPresentationUrl.Contains(url));
         }
     }
 }
