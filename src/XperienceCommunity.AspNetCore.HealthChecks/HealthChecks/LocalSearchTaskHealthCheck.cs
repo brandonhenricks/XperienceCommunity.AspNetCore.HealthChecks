@@ -1,57 +1,68 @@
 ﻿using System.Collections.ObjectModel;
 using System.Data;
+using CMS.Helpers;
 using CMS.Search;
-using CMS.Search.Azure;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 {
+    /// <summary>
+    /// Local Search Task Health Check
+    /// </summary>
+    /// <remarks>Checks the Local Search Tasks to determine if any errors are present.</remarks>
     public sealed class LocalSearchTaskHealthCheck: IHealthCheck
     {
         private readonly ISearchTaskInfoProvider _searchTaskInfoProvider;
+        private readonly IProgressiveCache _cache;
 
-        public LocalSearchTaskHealthCheck(ISearchTaskInfoProvider searchTaskInfoProvider)
+        public LocalSearchTaskHealthCheck(ISearchTaskInfoProvider searchTaskInfoProvider, IProgressiveCache cache)
         {
-            _searchTaskInfoProvider = searchTaskInfoProvider;
+            _searchTaskInfoProvider = searchTaskInfoProvider ?? throw new ArgumentNullException(nameof(searchTaskInfoProvider));
+            _cache = cache;
         }
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())
         {
-            var result = new HealthCheckResult(HealthStatus.Healthy);
 
             try
-            {
-                var queryResult  = await _searchTaskInfoProvider
-                    .Get()
-                    .WhereNotNull(nameof(SearchTaskInfo.SearchTaskErrorMessage))
-                    .GetEnumerableTypedResultAsync(CommandBehavior.CloseConnection, true, cancellationToken)
+            {               
+                // Asynchronously loads data and ensures caching
+                var data = await _cache.LoadAsync(async cacheSettings =>
+                    {
+                        // Calls an async method that loads the required data
+                        var result = await _searchTaskInfoProvider
+                            .Get()
+                            .WhereNotNull(nameof(SearchTaskInfo.SearchTaskErrorMessage))
+                            .GetEnumerableTypedResultAsync(CommandBehavior.CloseConnection, true, cancellationToken)
+                            .ConfigureAwait(false);
+
+                        cacheSettings.CacheDependency = CacheHelper.GetCacheDependency($"{SearchTaskInfo.OBJECT_TYPE}|all");
+
+                        return result;
+                    }, new CacheSettings(TimeSpan.FromMinutes(10).TotalMinutes, $"apphealth|{SearchTaskInfo.OBJECT_TYPE}"))
                     .ConfigureAwait(false);
+                
 
-                var searchTasks = queryResult.ToList();
+                var searchTasks = data.ToList();
 
-                if (searchTasks.Any())
+                if (!searchTasks.Any())
                 {
-                    var resultData = GetData(searchTasks);
-                    result = new HealthCheckResult(HealthStatus.Degraded, "Local Search Tasks Contain Errors.", data: resultData);
+                    return new HealthCheckResult(HealthStatus.Healthy);
                 }
 
-                return result;
+                var resultData = GetData(searchTasks);
+
+                return new HealthCheckResult(HealthStatus.Degraded, "Local Search Tasks Contain Errors.", data: resultData);
             }
             catch (Exception e)
             {
-                result = new HealthCheckResult(HealthStatus.Unhealthy, e.Message, e);
-
-                return result;
+                return new HealthCheckResult(HealthStatus.Unhealthy, e.Message, e);
             }
         }
-        private IReadOnlyDictionary<string, object> GetData(IEnumerable<SearchTaskInfo> objects)
-        {
-            var dictionary = new Dictionary<string, object>();
 
-            foreach (var searchTask in objects)
-            {
-                dictionary.Add(searchTask.SearchTaskID.ToString(), searchTask.SearchTaskErrorMessage);
-            }
+        private static IReadOnlyDictionary<string, object> GetData(IEnumerable<SearchTaskInfo> objects)
+        {
+            var dictionary = objects.ToDictionary<SearchTaskInfo, string, object>(searchTask => searchTask.SearchTaskID.ToString(), searchTask => searchTask.SearchTaskErrorMessage);
 
             return new ReadOnlyDictionary<string, object>(dictionary);
         }
