@@ -19,8 +19,8 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
         public AzureSearchTaskHealthCheck(ISearchTaskAzureInfoProvider searchTaskAzureInfoProvider, IProgressiveCache cache)
         {
-            _searchTaskAzureInfoProvider = searchTaskAzureInfoProvider;
-            _cache = cache;
+            _searchTaskAzureInfoProvider = searchTaskAzureInfoProvider ?? throw new ArgumentNullException(nameof(searchTaskAzureInfoProvider));
+            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context,

@@ -9,7 +9,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
     public sealed class WebFarmHealthCheck : IHealthCheck
     {
         public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context,
-            CancellationToken cancellationToken = new CancellationToken())
+            CancellationToken cancellationToken = default)
         {
             var webFarmServers = WebFarmContext.EnabledServers;
 

@@ -7,8 +7,8 @@
         <PackageVersion Include="Kentico.Xperience.Libraries" Version="[13.0.16, 13.1.0)" />
         <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="7.0.8" />
         <PackageVersion Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-        <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="7.0.8" />
 		<PackageVersion Include="CSharpFunctionalExtensions" Version="2.35.0" />
 		<PackageVersion Include="Microsoft.SourceLink.GitHub" Version="1.1.1" />
+		<PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" version="7.0.0.0"/>
 	</ItemGroup>
 </Project>

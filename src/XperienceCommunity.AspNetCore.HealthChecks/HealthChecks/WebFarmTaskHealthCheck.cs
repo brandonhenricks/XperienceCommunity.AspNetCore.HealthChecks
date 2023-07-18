@@ -15,12 +15,12 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
         public WebFarmTaskHealthCheck(IWebFarmServerTaskInfoProvider webFarmTaskInfoProvider, IProgressiveCache cache)
         {
-            _webFarmTaskInfoProvider = webFarmTaskInfoProvider;
-            _cache = cache;
+            _webFarmTaskInfoProvider = webFarmTaskInfoProvider ?? throw new ArgumentNullException(nameof(webFarmTaskInfoProvider));
+            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context,
-            CancellationToken cancellationToken = new CancellationToken())
+            CancellationToken cancellationToken = default)
         {
             var result = new HealthCheckResult(HealthStatus.Healthy);
 
