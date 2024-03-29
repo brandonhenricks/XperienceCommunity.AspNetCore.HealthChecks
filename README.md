@@ -31,15 +31,20 @@ public void ConfigureServices(IServiceCollection services)
 }
 ```
 
+4. In your `Startup.cs` file (or wherever you configure your application), use the `UseHealthChecks` extension method on your `IApplicationBuilder` instance. Here's an example:
+
+```csharp
+public void Configure(IApplicationBuilder app)
+{    
+    app.UseHealthChecks("/kentico-health");
+}
+```
+
 ## Built With
 
 * [Microsoft.AspNetCore.Health](https://www.nuget.org/packages/Microsoft.AspNetCore.Diagnostics.HealthChecks/) - The web framework used
 * [Kentico Xperience 13](https://www.kentico.com) - Kentico Xperience
 * [NuGet](https://nuget.org/) - Dependency Management
-
-## Contributing
-
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Versioning
 
@@ -47,7 +52,7 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 ## Authors
 
-* **Brandon Henricks** - *Initial work* - [YourName](https://github.com/brandonhenricks)
+* **Brandon Henricks** - *Initial work* - [Brandon Henricks](https://github.com/brandonhenricks)
 
 See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 
@@ -57,6 +62,7 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
+* Chris Blaylock
+* Mike Wills
+* Jordan Walters
+* Alan Abair

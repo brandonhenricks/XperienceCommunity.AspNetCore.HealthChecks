@@ -38,12 +38,11 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
                         cacheSettings.CacheDependency = CacheHelper.GetCacheDependency($"{WebFarmServerTaskInfo.OBJECT_TYPE}|all");
 
-                        return query.ToList();
+                        return query;
                     }, new CacheSettings(TimeSpan.FromMinutes(10).TotalMinutes, $"apphealth|{WebFarmServerTaskInfo.OBJECT_TYPE}"))
                     .ConfigureAwait(false);
-
-
-                if (data.Count != 0)
+                
+                if (data.Any())
                 {
                     result = new HealthCheckResult(HealthStatus.Degraded, "Web Farm Tasks Contain Errors.");
                 }

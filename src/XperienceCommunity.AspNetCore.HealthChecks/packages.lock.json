@@ -10,15 +10,17 @@
       },
       "Kentico.Xperience.Libraries": {
         "type": "Direct",
-        "requested": "[13.0.16, 13.1.0)",
-        "resolved": "13.0.16",
-        "contentHash": "Q8DGTS3zpt9yHttMQQfJDQ04HbLVD46gxUyBOIchl9ajsRvBaSHcf2KPnB/CXlvRSgxMTLi8yNfkrh/KtYqRyA==",
+        "requested": "[13.0.70, 13.1.0)",
+        "resolved": "13.0.70",
+        "contentHash": "kz1UJIMqkkE1JIZGAB1767Two+kuGtDO/kkgmu8B0Q70DKkweQoIRSNovXSOyCxMcxb7JKrB2PNhQsfp83syoA==",
         "dependencies": {
           "AWSSDK.Core": "3.5.1.13",
           "AWSSDK.S3": "3.5.1.4",
           "AngleSharp": "0.14.0",
+          "Azure.AI.TextAnalytics": "5.0.0",
           "DocumentFormat.OpenXml": "2.7.2",
           "MaxMind.GeoIP2": "3.2.0",
+          "Microsoft.Azure.CognitiveServices.Vision.ComputerVision": "7.0.0",
           "Microsoft.Azure.Search": "10.1.0",
           "Microsoft.Azure.Search.Service": "10.1.0",
           "Microsoft.Azure.Storage.Blob": "11.2.2",
@@ -121,6 +123,29 @@
           "AWSSDK.Core": "[3.5.1.13, 3.6.0)"
         }
       },
+      "Azure.AI.TextAnalytics": {
+        "type": "Transitive",
+        "resolved": "5.0.0",
+        "contentHash": "Q3GMO5U6MaUpNroqh3DwYCyRB8A9PkQ4B+fwb6rIbyZCZrP9PMBswfqB2ZYNPQPpFzKpn3nUWwN8iB7FAeLf+A==",
+        "dependencies": {
+          "Azure.Core": "1.2.2",
+          "Microsoft.Bcl.AsyncInterfaces": "1.0.0",
+          "System.Text.Json": "4.6.0"
+        }
+      },
+      "Azure.Core": {
+        "type": "Transitive",
+        "resolved": "1.2.2",
+        "contentHash": "KVnvNS0XLCrrOP5Ei1hsCQ2BBseO5ScVG2kk8exsH5cWHk7Tkv9VXfxHJ1v0WA6I9I+bcBwtgYV7LGF/H8W5Ng==",
+        "dependencies": {
+          "Microsoft.Bcl.AsyncInterfaces": "1.0.0",
+          "System.Buffers": "4.5.0",
+          "System.Diagnostics.DiagnosticSource": "4.6.0",
+          "System.Memory": "4.5.3",
+          "System.Numerics.Vectors": "4.5.0",
+          "System.Threading.Tasks.Extensions": "4.5.2"
+        }
+      },
       "DocumentFormat.OpenXml": {
         "type": "Transitive",
         "resolved": "2.7.2",
@@ -152,6 +177,17 @@
         "contentHash": "ziFz5zH8f33En4dX81LW84I6XrYXKf9jg6aM39cM+LffN9KJahViKZ61dGMSO2gd3e+qe5yBRwsesvyqlZaSMg==",
         "dependencies": {
           "Microsoft.Extensions.Primitives": "2.2.0"
+        }
+      },
+      "Microsoft.Azure.CognitiveServices.Vision.ComputerVision": {
+        "type": "Transitive",
+        "resolved": "7.0.0",
+        "contentHash": "f6khBzudPBt3aW1cNGZxc3MSZF/X3M5KUPnAiDJcz+7+L2u7dKDTgDb1YkXizzuv0vHKUha6ntPFAvuvJwX4Rg==",
+        "dependencies": {
+          "Microsoft.Rest.ClientRuntime": "[2.3.20, 3.0.0)",
+          "Microsoft.Rest.ClientRuntime.Azure": "[3.3.18, 4.0.0)",
+          "Newtonsoft.Json": "10.0.3",
+          "System.Net.Http": "4.3.4"
         }
       },
       "Microsoft.Azure.KeyVault.Core": {
@@ -756,15 +792,8 @@
       },
       "System.Buffers": {
         "type": "Transitive",
-        "resolved": "4.3.0",
-        "contentHash": "ratu44uTIHgeBeI0dE8DWvmXVBSo4u7ozRZZHOMmK/JPpYyo0dAfgSiHlpiObMQ5lEtEyIXA40sKRYg5J6A8uQ==",
-        "dependencies": {
-          "System.Diagnostics.Debug": "4.3.0",
-          "System.Diagnostics.Tracing": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Threading": "4.3.0"
-        }
+        "resolved": "4.5.0",
+        "contentHash": "pL2ChpaRRWI/p4LXyy4RgeWlYF2sgfj/pnVMvBqwNFr5cXg7CXNnWZWxrOONLg8VGdFB8oB+EG2Qw4MLgTOe+A=="
       },
       "System.CodeDom": {
         "type": "Transitive",
@@ -1188,6 +1217,11 @@
           "System.Runtime": "4.3.0",
           "System.Runtime.Handles": "4.3.0"
         }
+      },
+      "System.Numerics.Vectors": {
+        "type": "Transitive",
+        "resolved": "4.5.0",
+        "contentHash": "QQTlPTl06J/iiDbJCiepZ4H//BVraReU4O4EoRw1U02H5TLUIT7xn3GnDp9AXPSlJUDyFs4uWjWafNX6WrAojQ=="
       },
       "System.ObjectModel": {
         "type": "Transitive",
@@ -1675,6 +1709,11 @@
         "resolved": "4.5.0",
         "contentHash": "Xg4G4Indi4dqP1iuAiMSwpiWS54ZghzR644OtsRCm/m/lBMG8dUBhLVN7hLm8NNrNTR+iGbshCPTwrvxZPlm4g=="
       },
+      "System.Text.Json": {
+        "type": "Transitive",
+        "resolved": "4.6.0",
+        "contentHash": "4F8Xe+JIkVoDJ8hDAZ7HqLkjctN/6WItJIzQaifBwClC7wmoLSda/Sv2i6i1kycqDb3hWF4JCVbpAweyOKHEUA=="
+      },
       "System.Text.RegularExpressions": {
         "type": "Transitive",
         "resolved": "4.1.0",
@@ -1736,13 +1775,8 @@
       },
       "System.Threading.Tasks.Extensions": {
         "type": "Transitive",
-        "resolved": "4.0.0",
-        "contentHash": "pH4FZDsZQ/WmgJtN4LWYmRdJAEeVkyriSwrv2Teoe5FOU0Yxlb6II6GL8dBPOfRmutHGATduj3ooMt7dJ2+i+w==",
-        "dependencies": {
-          "System.Collections": "4.0.11",
-          "System.Runtime": "4.1.0",
-          "System.Threading.Tasks": "4.0.11"
-        }
+        "resolved": "4.5.2",
+        "contentHash": "BG/TNxDFv0svAzx8OiMXDlsHfGw623BZ8tCXw4YLhDFDvDhNUEV58jKYMGRnkbJNm7c3JNNJDiN7JBMzxRBR2w=="
       },
       "System.Threading.Thread": {
         "type": "Transitive",
@@ -1803,15 +1837,17 @@
       },
       "Kentico.Xperience.Libraries": {
         "type": "Direct",
-        "requested": "[13.0.16, 13.1.0)",
-        "resolved": "13.0.16",
-        "contentHash": "Q8DGTS3zpt9yHttMQQfJDQ04HbLVD46gxUyBOIchl9ajsRvBaSHcf2KPnB/CXlvRSgxMTLi8yNfkrh/KtYqRyA==",
+        "requested": "[13.0.70, 13.1.0)",
+        "resolved": "13.0.70",
+        "contentHash": "kz1UJIMqkkE1JIZGAB1767Two+kuGtDO/kkgmu8B0Q70DKkweQoIRSNovXSOyCxMcxb7JKrB2PNhQsfp83syoA==",
         "dependencies": {
           "AWSSDK.Core": "3.5.1.13",
           "AWSSDK.S3": "3.5.1.4",
           "AngleSharp": "0.14.0",
+          "Azure.AI.TextAnalytics": "5.0.0",
           "DocumentFormat.OpenXml": "2.7.2",
           "MaxMind.GeoIP2": "3.2.0",
+          "Microsoft.Azure.CognitiveServices.Vision.ComputerVision": "7.0.0",
           "Microsoft.Azure.Search": "10.1.0",
           "Microsoft.Azure.Search.Service": "10.1.0",
           "Microsoft.Azure.Storage.Blob": "11.2.2",
@@ -1913,6 +1949,29 @@
           "AWSSDK.Core": "[3.5.1.13, 3.6.0)"
         }
       },
+      "Azure.AI.TextAnalytics": {
+        "type": "Transitive",
+        "resolved": "5.0.0",
+        "contentHash": "Q3GMO5U6MaUpNroqh3DwYCyRB8A9PkQ4B+fwb6rIbyZCZrP9PMBswfqB2ZYNPQPpFzKpn3nUWwN8iB7FAeLf+A==",
+        "dependencies": {
+          "Azure.Core": "1.2.2",
+          "Microsoft.Bcl.AsyncInterfaces": "1.0.0",
+          "System.Text.Json": "4.6.0"
+        }
+      },
+      "Azure.Core": {
+        "type": "Transitive",
+        "resolved": "1.2.2",
+        "contentHash": "KVnvNS0XLCrrOP5Ei1hsCQ2BBseO5ScVG2kk8exsH5cWHk7Tkv9VXfxHJ1v0WA6I9I+bcBwtgYV7LGF/H8W5Ng==",
+        "dependencies": {
+          "Microsoft.Bcl.AsyncInterfaces": "1.0.0",
+          "System.Buffers": "4.5.0",
+          "System.Diagnostics.DiagnosticSource": "4.6.0",
+          "System.Memory": "4.5.3",
+          "System.Numerics.Vectors": "4.5.0",
+          "System.Threading.Tasks.Extensions": "4.5.2"
+        }
+      },
       "DocumentFormat.OpenXml": {
         "type": "Transitive",
         "resolved": "2.7.2",
@@ -1944,6 +2003,17 @@
         "contentHash": "ziFz5zH8f33En4dX81LW84I6XrYXKf9jg6aM39cM+LffN9KJahViKZ61dGMSO2gd3e+qe5yBRwsesvyqlZaSMg==",
         "dependencies": {
           "Microsoft.Extensions.Primitives": "2.2.0"
+        }
+      },
+      "Microsoft.Azure.CognitiveServices.Vision.ComputerVision": {
+        "type": "Transitive",
+        "resolved": "7.0.0",
+        "contentHash": "f6khBzudPBt3aW1cNGZxc3MSZF/X3M5KUPnAiDJcz+7+L2u7dKDTgDb1YkXizzuv0vHKUha6ntPFAvuvJwX4Rg==",
+        "dependencies": {
+          "Microsoft.Rest.ClientRuntime": "[2.3.20, 3.0.0)",
+          "Microsoft.Rest.ClientRuntime.Azure": "[3.3.18, 4.0.0)",
+          "Newtonsoft.Json": "10.0.3",
+          "System.Net.Http": "4.3.4"
         }
       },
       "Microsoft.Azure.KeyVault.Core": {
@@ -2545,15 +2615,8 @@
       },
       "System.Buffers": {
         "type": "Transitive",
-        "resolved": "4.3.0",
-        "contentHash": "ratu44uTIHgeBeI0dE8DWvmXVBSo4u7ozRZZHOMmK/JPpYyo0dAfgSiHlpiObMQ5lEtEyIXA40sKRYg5J6A8uQ==",
-        "dependencies": {
-          "System.Diagnostics.Debug": "4.3.0",
-          "System.Diagnostics.Tracing": "4.3.0",
-          "System.Resources.ResourceManager": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Threading": "4.3.0"
-        }
+        "resolved": "4.5.0",
+        "contentHash": "pL2ChpaRRWI/p4LXyy4RgeWlYF2sgfj/pnVMvBqwNFr5cXg7CXNnWZWxrOONLg8VGdFB8oB+EG2Qw4MLgTOe+A=="
       },
       "System.CodeDom": {
         "type": "Transitive",
@@ -2974,6 +3037,11 @@
           "System.Runtime": "4.3.0",
           "System.Runtime.Handles": "4.3.0"
         }
+      },
+      "System.Numerics.Vectors": {
+        "type": "Transitive",
+        "resolved": "4.5.0",
+        "contentHash": "QQTlPTl06J/iiDbJCiepZ4H//BVraReU4O4EoRw1U02H5TLUIT7xn3GnDp9AXPSlJUDyFs4uWjWafNX6WrAojQ=="
       },
       "System.ObjectModel": {
         "type": "Transitive",
@@ -3461,6 +3529,11 @@
         "resolved": "4.5.0",
         "contentHash": "Xg4G4Indi4dqP1iuAiMSwpiWS54ZghzR644OtsRCm/m/lBMG8dUBhLVN7hLm8NNrNTR+iGbshCPTwrvxZPlm4g=="
       },
+      "System.Text.Json": {
+        "type": "Transitive",
+        "resolved": "4.6.0",
+        "contentHash": "4F8Xe+JIkVoDJ8hDAZ7HqLkjctN/6WItJIzQaifBwClC7wmoLSda/Sv2i6i1kycqDb3hWF4JCVbpAweyOKHEUA=="
+      },
       "System.Text.RegularExpressions": {
         "type": "Transitive",
         "resolved": "4.1.0",
@@ -3522,13 +3595,8 @@
       },
       "System.Threading.Tasks.Extensions": {
         "type": "Transitive",
-        "resolved": "4.0.0",
-        "contentHash": "pH4FZDsZQ/WmgJtN4LWYmRdJAEeVkyriSwrv2Teoe5FOU0Yxlb6II6GL8dBPOfRmutHGATduj3ooMt7dJ2+i+w==",
-        "dependencies": {
-          "System.Collections": "4.0.11",
-          "System.Runtime": "4.1.0",
-          "System.Threading.Tasks": "4.0.11"
-        }
+        "resolved": "4.5.2",
+        "contentHash": "BG/TNxDFv0svAzx8OiMXDlsHfGw623BZ8tCXw4YLhDFDvDhNUEV58jKYMGRnkbJNm7c3JNNJDiN7JBMzxRBR2w=="
       },
       "System.Threading.Thread": {
         "type": "Transitive",
