@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -9,14 +9,18 @@
     <PackageId>XperienceCommunity.AspNetCore.HealthChecks</PackageId>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/brandonhenricks/XperienceCommunity.AspNetCore.HealthChecks</RepositoryUrl>
+    <Authors>Brandon Henricks</Authors>
+    <Description>Add Kentico Specific Health Checks to your .NET 6/8 Kentico 13 Application.</Description>
+    <IncludeSymbols>True</IncludeSymbols>
+    <AnalysisLevel>latest</AnalysisLevel>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" />
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" />
 		<PackageReference Include="CSharpFunctionalExtensions" />
     <PackageReference Include="Kentico.Xperience.Libraries">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
     <PackageReference Include="Microsoft.SourceLink.GitHub">
       <PrivateAssets>all</PrivateAssets>

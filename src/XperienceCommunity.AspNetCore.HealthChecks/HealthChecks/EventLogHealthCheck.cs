@@ -2,7 +2,6 @@
 using CMS.DataEngine;
 using CMS.EventLog;
 using CMS.Helpers;
-using CMS.Search.Azure;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
@@ -44,7 +43,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                     return results;
                 }, new CacheSettings(TimeSpan.FromMinutes(10).TotalMinutes, $"apphealth|{EventLogInfo.OBJECT_TYPE}"))
                     .ConfigureAwait(false);
-                
+
                 var exceptionEvents = data.ToList();
 
                 if (exceptionEvents.Count >= 25)

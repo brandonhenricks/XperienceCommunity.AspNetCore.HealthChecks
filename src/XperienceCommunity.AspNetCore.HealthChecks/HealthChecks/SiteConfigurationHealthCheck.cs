@@ -9,11 +9,10 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
     /// Site Configuration Health Check
     /// </summary>
     /// <remarks>Investigates the Site Info to determine if any sites are configured.</remarks>
-    public sealed class SiteConfigurationHealthCheck: IHealthCheck
+    public sealed class SiteConfigurationHealthCheck : IHealthCheck
     {
         private readonly ISiteInfoProvider _siteInfoProvider;
         private readonly IProgressiveCache _cache;
-
 
         public SiteConfigurationHealthCheck(ISiteInfoProvider siteInfoProvider, IProgressiveCache cache)
         {
@@ -30,7 +29,6 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                         var results = await _siteInfoProvider.Get()
                             .GetEnumerableTypedResultAsync(CommandBehavior.CloseConnection, true, cancellationToken)
                             .ConfigureAwait(false);
-
 
                         cs.CacheDependency = CacheHelper.GetCacheDependency($"{SiteInfo.OBJECT_TYPE}|all");
 

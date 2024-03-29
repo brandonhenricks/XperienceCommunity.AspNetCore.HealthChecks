@@ -45,7 +45,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
                 var searchTasks = data.ToList();
 
-                if (!searchTasks.Any())
+                if (searchTasks.Count == 0)
                 {
                     return new HealthCheckResult(HealthStatus.Healthy);
                 }

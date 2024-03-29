@@ -13,7 +13,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             var webFarmServers = WebFarmContext.EnabledServers;
 
-            if (!webFarmServers.Any())
+            if (webFarmServers.Count == 0)
             {
                 return Task.FromResult(new HealthCheckResult(HealthStatus.Degraded, "No Web Farm Info Returned"));
             }

@@ -16,7 +16,6 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         private readonly ISearchTaskAzureInfoProvider _searchTaskAzureInfoProvider;
         private readonly IProgressiveCache _cache;
 
-
         public AzureSearchTaskHealthCheck(ISearchTaskAzureInfoProvider searchTaskAzureInfoProvider, IProgressiveCache cache)
         {
             _searchTaskAzureInfoProvider = searchTaskAzureInfoProvider ?? throw new ArgumentNullException(nameof(searchTaskAzureInfoProvider));
@@ -43,11 +42,10 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                     return result;
                 }, new CacheSettings(TimeSpan.FromMinutes(10).TotalMinutes, $"apphealth|{SearchTaskAzureInfo.OBJECT_TYPE}"))
                     .ConfigureAwait(false);
-                
 
                 var searchTasks = data.ToList();
 
-                if (!searchTasks.Any())
+                if (searchTasks.Count == 0)
                 {
                     return new HealthCheckResult(HealthStatus.Healthy);
                 }
