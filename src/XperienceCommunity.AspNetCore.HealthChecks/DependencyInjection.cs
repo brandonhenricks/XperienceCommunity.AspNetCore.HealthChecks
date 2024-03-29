@@ -20,7 +20,8 @@ namespace XperienceCommunity.AspNetCore.HealthChecks
         {
             return services
                 .AddHealthChecks()
-                .AddCheck<SiteConfigurationHealthCheck>("Site Presentation Url Health Check", tags: s_tags)
+                .AddCheck<SiteConfigurationHealthCheck>("Site Configuration Health Check", tags: s_tags)
+                .AddCheck<SitePresentationHealthCheck>("Site Presentation Url Health Check", tags: s_tags)
                 .AddCheck<EventLogHealthCheck>("Search Task Health Check", tags: s_tags)
                 .AddCheck<WebFarmHealthCheck>("Web Farm Health Check", tags: s_tags)
                 .AddCheck<AzureSearchTaskHealthCheck>("Azure Search Task Health Checks", tags: s_tags)
