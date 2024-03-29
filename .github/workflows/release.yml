@@ -24,10 +24,12 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 8.0.x      
-    - name: Build
+        dotnet-version: 8.0.x    
+    - name: Restore Project Dependencies
+      run: dotnet restore  
+    - name: Build Project
       run: dotnet build --no-restore --configuration Release /p:Version=${VERSION}
-    - name: Pack
+    - name: Pack Project
       run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output .
-    - name: Push
+    - name: Push Project to Nuget
       run: dotnet nuget push XperienceCommunity.AspNetCore.HealthChecks.${VERSION}.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
