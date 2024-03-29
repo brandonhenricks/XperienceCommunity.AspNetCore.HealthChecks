@@ -23,7 +23,6 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
-
             try
             {
                 // Asynchronously loads data and ensures caching
@@ -40,7 +39,6 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                         return result;
                     }, new CacheSettings(TimeSpan.FromMinutes(10).TotalMinutes, $"apphealth|{SearchTaskInfo.OBJECT_TYPE}"))
                     .ConfigureAwait(false);
-
 
                 var searchTasks = data.ToList();
 
@@ -62,6 +60,11 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             }
             catch (InvalidOperationException ex)
             {
+                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase))
+                {
+                    return HealthCheckResult.Healthy();
+                }
+
                 return HealthCheckResult.Degraded(ex.Message, ex);
             }
             catch (Exception e)

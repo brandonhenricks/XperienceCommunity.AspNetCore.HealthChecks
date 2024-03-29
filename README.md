@@ -12,7 +12,8 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-1. .NET 6/.NET 8 Kentico Xperience Application.
+1. .NET 6/.NET 8 
+2. Kentico Xperience 13 Application.
 
 ### Installing
 
@@ -24,12 +25,27 @@ This package provides a set of Kentico-specific health checks that you can easil
 
 3. In your `Startup.cs` file (or wherever you configure your services), use the `AddKenticoHealthChecks` extension method on your `IServiceCollection` instance. Here's an example:
 
+#### Add all Kentico Health Checks
+This method will add all the Kentico Health checks to your application.
+
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
     services.AddKenticoHealthChecks();
 }
 ```
+
+#### Add specific Kentico Health Checks
+This method will allow you the most flexibility to add only the health checks you want for your application.
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddHealthChecks()
+            .AddCheck<SiteConfigurationHealthCheck>("Site Configuration Health Check");
+}
+```
+
 #### Middleware Registration
 
 In your `Startup.cs` file (or wherever you configure your application), use the `UseHealthChecks` extension method on your `IApplicationBuilder` instance. This registers the health checks as middleware.Here's an example:
@@ -77,6 +93,10 @@ The `SiteConfigurationHealthCheck` class is an implementation of the `IHealthChe
 ### SitePresentationHealthCheck
 
 The `SitePresentationHealthCheck` class is an implementation of the `IHealthCheck` interface. It is responsible for checking the health of the site presentation configuration in an ASP.NET Core application.
+
+### SitePresentationHealthCheck
+
+The `StagingTaskHealthCheck` class is an implementation of the `IHealthCheck` interface. It is responsible for checking the health of staging tasks in a Kentico Xperience CMS application.
 
 ### WebFarmHealthCheck
 

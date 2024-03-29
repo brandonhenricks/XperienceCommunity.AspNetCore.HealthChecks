@@ -71,6 +71,12 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             }
             catch (InvalidOperationException ex)
             {
+
+                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase))
+                {
+                    return HealthCheckResult.Healthy();
+                }
+
                 return HealthCheckResult.Degraded(ex.Message, ex);
             }
             catch (Exception)

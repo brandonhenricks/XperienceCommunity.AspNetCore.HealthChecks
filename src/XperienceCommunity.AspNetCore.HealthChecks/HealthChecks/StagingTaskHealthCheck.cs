@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Data;
 using CMS.Base;
+using CMS.DataEngine;
 using CMS.Helpers;
 using CMS.Synchronization;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -28,15 +29,17 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             try
             {
                 var data = await _cache.LoadAsync(async cs =>
-                    {
-                        var results = await _stagingTaskInfoProvider.Get()
-                            .GetEnumerableTypedResultAsync(CommandBehavior.CloseConnection, true, cancellationToken)
-                            .ConfigureAwait(false);
+                        {
+                            var results = await _stagingTaskInfoProvider.Get()
+                                .GetEnumerableTypedResultAsync(CommandBehavior.CloseConnection, true, cancellationToken)
+                                .ConfigureAwait(false);
 
-                        cs.CacheDependency = CacheHelper.GetCacheDependency($"{StagingTaskInfo.OBJECT_TYPE}|all");
+                            cs.CacheDependency = CacheHelper.GetCacheDependency($"{StagingTaskInfo.OBJECT_TYPE}|all");
 
-                        return results;
-                    }, new CacheSettings(TimeSpan.FromMinutes(10).TotalMinutes, $"apphealth|{StagingTaskInfo.OBJECT_TYPE}"))
+                            return results;
+                        },
+                        new CacheSettings(TimeSpan.FromMinutes(10).TotalMinutes,
+                            $"apphealth|{StagingTaskInfo.OBJECT_TYPE}"))
                     .ConfigureAwait(false);
 
                 var stagingTasks = data.ToList();
@@ -52,15 +55,18 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                     .ToList();
 
                 var syncData = await _cache.LoadAsync(async cs =>
-                    {
-                        var results = await _synchronizationInfoProvider.Get()
-                            .GetEnumerableTypedResultAsync(CommandBehavior.CloseConnection, true, cancellationToken)
-                            .ConfigureAwait(false);
+                        {
+                            var results = await _synchronizationInfoProvider.Get()
+                                .GetEnumerableTypedResultAsync(CommandBehavior.CloseConnection, true, cancellationToken)
+                                .ConfigureAwait(false);
 
-                        cs.CacheDependency = CacheHelper.GetCacheDependency($"{SynchronizationInfo.OBJECT_TYPE}|all");
+                            cs.CacheDependency =
+                                CacheHelper.GetCacheDependency($"{SynchronizationInfo.OBJECT_TYPE}|all");
 
-                        return results;
-                    }, new CacheSettings(TimeSpan.FromMinutes(10).TotalMinutes, $"apphealth|{SynchronizationInfo.OBJECT_TYPE}"))
+                            return results;
+                        },
+                        new CacheSettings(TimeSpan.FromMinutes(10).TotalMinutes,
+                            $"apphealth|{SynchronizationInfo.OBJECT_TYPE}"))
                     .ConfigureAwait(false);
 
                 var syncTasks = syncData.ToList();
@@ -71,7 +77,8 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                 }
 
                 var syncErrorTasks = syncTasks
-                     .Where(s => stagingTaskIdList.Contains(s.SynchronizationTaskID) && !string.IsNullOrWhiteSpace(s.SynchronizationErrorMessage))
+                    .Where(s => stagingTaskIdList.Contains(s.SynchronizationTaskID) &&
+                                !string.IsNullOrWhiteSpace(s.SynchronizationErrorMessage))
                     .ToList();
 
                 if (syncErrorTasks.Count == 0)
@@ -83,7 +90,16 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             }
             catch (InvalidOperationException ex)
             {
+                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase))
+                {
+                    return HealthCheckResult.Healthy();
+                }
+
                 return HealthCheckResult.Degraded(ex.Message, ex);
+            }
+            catch (DataClassNotFoundException)
+            {
+                return HealthCheckResult.Healthy("No Synchronization Tasks");
             }
             catch (Exception e)
             {
