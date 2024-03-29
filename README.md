@@ -30,8 +30,9 @@ public void ConfigureServices(IServiceCollection services)
     services.AddKenticoHealthChecks();
 }
 ```
+#### Middleware Registration
 
-4. In your `Startup.cs` file (or wherever you configure your application), use the `UseHealthChecks` extension method on your `IApplicationBuilder` instance. Here's an example:
+In your `Startup.cs` file (or wherever you configure your application), use the `UseHealthChecks` extension method on your `IApplicationBuilder` instance. This registers the health checks as middleware.Here's an example:
 
 ```csharp
 public void Configure(IApplicationBuilder app)
@@ -39,6 +40,22 @@ public void Configure(IApplicationBuilder app)
     app.UseHealthChecks("/kentico-health");
 }
 ```
+
+#### Endpoint Registration
+
+In your `Startup.cs` file (or wherever you configure your application), use the `MapHealthChecks` extension method on your `IEndpointRouteBuilder` instance. This registers the health checks as an endpoint.Here's an example:
+
+```csharp
+app.UseEndpoints(endpoints =>
+{
+    var defaultCulture = CultureInfo.GetCultureInfo("en-US");
+
+    endpoints.Kentico().MapRoutes();
+
+    endpoints.MapHealthChecks("/kentico-health");
+}
+```
+
 ## Health Checks
 
 ### Azure Search Task Health Check
