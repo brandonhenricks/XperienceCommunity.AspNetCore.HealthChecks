@@ -51,6 +51,10 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
                 return HealthCheckResult.Healthy();
             }
+            catch (InvalidOperationException ex)
+            {
+                return HealthCheckResult.Degraded(ex.Message, ex);
+            }
             catch (Exception e)
             {
                 return HealthCheckResult.Unhealthy(e.Message, e);

@@ -15,21 +15,19 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
             if (webFarmServers.Count == 0)
             {
-                return Task.FromResult(new HealthCheckResult(HealthStatus.Degraded, "No Web Farm Info Returned"));
+                return Task.FromResult(HealthCheckResult.Degraded("No Web Farm Info Returned"));
             }
 
             foreach (var server in webFarmServers)
             {
                 if (server.Status == WebFarmServerStatusEnum.NotResponding)
                 {
-                    return Task.FromResult(new HealthCheckResult(HealthStatus.Degraded,
-                        $"Server {server.ServerName} is not responding."));
+                    return Task.FromResult(HealthCheckResult.Degraded("Server {server.ServerName} is not responding."));
                 }
             }
 
             // If all servers are running, return a healthy status
-            return Task.FromResult(new HealthCheckResult(HealthStatus.Healthy,
-                "All servers in the web farm are running."));
+            return Task.FromResult(HealthCheckResult.Healthy("All servers in the web farm are running."));
         }
     }
 }

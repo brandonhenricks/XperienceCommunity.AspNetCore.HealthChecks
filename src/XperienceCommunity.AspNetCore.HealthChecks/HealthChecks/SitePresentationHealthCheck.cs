@@ -42,6 +42,10 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
                 return HealthCheckResult.Unhealthy("The current site is not configured correctly.");
             }
+            catch (InvalidOperationException ex)
+            {
+                return HealthCheckResult.Degraded(ex.Message, ex);
+            }
             catch (Exception)
             {
                 return HealthCheckResult.Unhealthy("The current site is not configured correctly.");

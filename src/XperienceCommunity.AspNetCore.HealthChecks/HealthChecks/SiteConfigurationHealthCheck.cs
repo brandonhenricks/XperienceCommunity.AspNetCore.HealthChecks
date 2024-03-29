@@ -40,6 +40,10 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
                 return sites.Count == 0 ? new HealthCheckResult(HealthStatus.Unhealthy, "There are no sites configured.") : new HealthCheckResult(HealthStatus.Healthy, "Sites have been added to the CMS.");
             }
+            catch (InvalidOperationException ex)
+            {
+                return HealthCheckResult.Degraded(ex.Message, ex);
+            }
             catch (Exception e)
             {
                 return new HealthCheckResult(HealthStatus.Unhealthy, e.Message, e);

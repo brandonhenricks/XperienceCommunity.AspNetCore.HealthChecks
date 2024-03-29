@@ -29,17 +29,20 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             {
                 // Asynchronously loads data and ensures caching
                 var data = await _cache.LoadAsync(async cacheSettings =>
-                {
-                    // Calls an async method that loads the required data
-                    var result = await _searchTaskAzureInfoProvider
-                        .Get()
-                        .GetEnumerableTypedResultAsync(CommandBehavior.CloseConnection, true, cancellationToken)
-                        .ConfigureAwait(false);
+                        {
+                            // Calls an async method that loads the required data
+                            var result = await _searchTaskAzureInfoProvider
+                                .Get()
+                                .GetEnumerableTypedResultAsync(CommandBehavior.CloseConnection, true, cancellationToken)
+                                .ConfigureAwait(false);
 
-                    cacheSettings.CacheDependency = CacheHelper.GetCacheDependency($"{SearchTaskAzureInfo.OBJECT_TYPE}|all");
+                            cacheSettings.CacheDependency =
+                                CacheHelper.GetCacheDependency($"{SearchTaskAzureInfo.OBJECT_TYPE}|all");
 
-                    return result;
-                }, new CacheSettings(TimeSpan.FromMinutes(10).TotalMinutes, $"apphealth|{SearchTaskAzureInfo.OBJECT_TYPE}"))
+                            return result;
+                        },
+                        new CacheSettings(TimeSpan.FromMinutes(10).TotalMinutes,
+                            $"apphealth|{SearchTaskAzureInfo.OBJECT_TYPE}"))
                     .ConfigureAwait(false);
 
                 var searchTasks = data.ToList();
@@ -49,7 +52,8 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                     return HealthCheckResult.Healthy();
                 }
 
-                var errorTasks = searchTasks.Where(searchTask => !string.IsNullOrEmpty(searchTask.SearchTaskAzureErrorMessage)).ToList();
+                var errorTasks = searchTasks
+                    .Where(searchTask => !string.IsNullOrEmpty(searchTask.SearchTaskAzureErrorMessage)).ToList();
 
                 if (errorTasks.Count == 0)
                 {
@@ -59,6 +63,10 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                 var healthResultData = GetData(errorTasks);
 
                 return HealthCheckResult.Degraded("Azure Search Tasks Contain Errors.", data: healthResultData);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return HealthCheckResult.Degraded(ex.Message, ex);
             }
             catch (Exception e)
             {
