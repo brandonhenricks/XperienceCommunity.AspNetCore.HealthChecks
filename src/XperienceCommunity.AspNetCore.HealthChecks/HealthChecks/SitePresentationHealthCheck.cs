@@ -11,7 +11,9 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ISiteInfoProvider _siteInfoProvider;
 
-        public SitePresentationHealthCheck(ISiteService siteService, IHttpContextAccessor httpContextAccessor, ISiteInfoProvider siteInfoProvider)
+        public SitePresentationHealthCheck(ISiteService siteService,
+            IHttpContextAccessor httpContextAccessor,
+            ISiteInfoProvider siteInfoProvider)
         {
             _siteService = siteService ?? throw new ArgumentNullException(nameof(siteService));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
@@ -40,6 +42,31 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                     return HealthCheckResult.Healthy("The current site is configured correctly.");
                 }
 
+                var domainAliasList = currentSite.LiveSiteAliases.ToList();
+
+                foreach (var domainAlias in domainAliasList)
+                {
+                    var domainAliasUri = new Uri(domainAlias.SiteDomainPresentationUrl);
+
+                    if (domainAliasUri.Host == requestUri.Host && domainAliasUri.Scheme == requestUri.Scheme)
+                    {
+                        return HealthCheckResult.Healthy("The current site is configured correctly.");
+                    }
+                    
+                }
+                
+                var siteDomainAliasList = currentSite.AdministrationAliases.ToList();
+
+                foreach (var siteDomainAliasInfo in siteDomainAliasList)
+                {
+                    var domainAliasUri = new Uri(siteDomainAliasInfo.SiteDomainPresentationUrl);
+
+                    if (domainAliasUri.Host == requestUri.Host && domainAliasUri.Scheme == requestUri.Scheme)
+                    {
+                        return HealthCheckResult.Healthy("The current site is configured correctly.");
+                    }
+                }
+                
                 return HealthCheckResult.Unhealthy("The current site is not configured correctly.");
             }
             catch (InvalidOperationException ex)
