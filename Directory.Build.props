@@ -3,7 +3,7 @@
 
   <PropertyGroup>
     <Company>BlueModus</Company>
-    <Authors>$(Company)</Authors>
+    <Authors>Brandon Henricks</Authors>
     <Copyright>Copyright © $(Company) $([System.DateTime]::Now.Year)</Copyright>
     <Trademark>$(Company)™</Trademark>
     <Product>XperienceCommunity.AspNetCore.HealthChecks</Product>
@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>nullable</WarningsAsErrors>
     <ImplicitUsings>enable</ImplicitUsings>
