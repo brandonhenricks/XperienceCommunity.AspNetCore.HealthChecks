@@ -1,6 +1,10 @@
 # XperienceCommunity.AspNetCore.HealthChecks
 
-This is a NuGet package that provides Kentico Health Checks for Microsoft.AspNetCore.Health check.
+This project is a NuGet package specifically designed to integrate Kentico Health Checks into applications using the Microsoft.AspNetCore.Health framework. It provides a set of custom health checks that monitor various aspects of a Kentico application, ensuring its optimal performance and stability.
+
+The health checks included in this package cover a wide range of Kentico functionalities, from site configuration and event logs to web farm and search tasks. By leveraging the Microsoft.AspNetCore.Health framework, these health checks can be easily added to any ASP.NET Core application, providing developers with immediate insights into the health of their Kentico applications.
+
+This package is an essential tool for any developer working with Kentico in an ASP.NET Core environment, simplifying the process of monitoring and maintaining the health of their applications.
 
 ## Getting Started
 
@@ -8,7 +12,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-What things you need to install the software and how to install them.
+1. .NET 6/.NET 8 Kentico Xperience Application.
 
 ### Installing
 
@@ -25,6 +29,7 @@ public void ConfigureServices(IServiceCollection services)
 {
     services.AddKenticoHealthChecks();
 }
+```
 
 ## Built With
 
