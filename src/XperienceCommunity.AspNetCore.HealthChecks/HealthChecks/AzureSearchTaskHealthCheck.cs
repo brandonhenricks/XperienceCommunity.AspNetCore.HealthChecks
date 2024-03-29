@@ -33,7 +33,6 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                     // Calls an async method that loads the required data
                     var result = await _searchTaskAzureInfoProvider
                         .Get()
-                        .WhereNotNull(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage))
                         .GetEnumerableTypedResultAsync(CommandBehavior.CloseConnection, true, cancellationToken)
                         .ConfigureAwait(false);
 
@@ -47,17 +46,23 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
                 if (searchTasks.Count == 0)
                 {
-                    return new HealthCheckResult(HealthStatus.Healthy);
+                    return HealthCheckResult.Healthy();
                 }
 
-                var healthResultData = GetData(searchTasks);
+                var errorTasks = searchTasks.Where(searchTask => !string.IsNullOrEmpty(searchTask.SearchTaskAzureErrorMessage)).ToList();
 
-                return new HealthCheckResult(HealthStatus.Degraded, "Azure Search Tasks Contain Errors.",
-                    data: healthResultData);
+                if (errorTasks.Count == 0)
+                {
+                    return HealthCheckResult.Healthy();
+                }
+
+                var healthResultData = GetData(errorTasks);
+
+                return HealthCheckResult.Degraded("Azure Search Tasks Contain Errors.", data: healthResultData);
             }
             catch (Exception e)
             {
-                return new HealthCheckResult(HealthStatus.Unhealthy, e.Message, e);
+                return HealthCheckResult.Unhealthy(e.Message, e);
             }
         }
 

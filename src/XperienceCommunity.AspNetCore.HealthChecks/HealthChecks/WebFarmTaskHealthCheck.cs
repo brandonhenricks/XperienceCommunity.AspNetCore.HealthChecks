@@ -22,7 +22,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context,
             CancellationToken cancellationToken = default)
         {
-            var result = new HealthCheckResult(HealthStatus.Healthy);
+            var result = HealthCheckResult.Healthy();
 
             try
             {
@@ -31,27 +31,27 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                         // Calls an async method that loads the required data
                         var query = await _webFarmTaskInfoProvider
                             .Get()
-                            .WhereNotNull(nameof(WebFarmServerTaskInfo.ErrorMessage))
                             .GetEnumerableTypedResultAsync(CommandBehavior.CloseConnection, true, cancellationToken)
                             .ConfigureAwait(false);
-
 
                         cacheSettings.CacheDependency = CacheHelper.GetCacheDependency($"{WebFarmServerTaskInfo.OBJECT_TYPE}|all");
 
                         return query;
                     }, new CacheSettings(TimeSpan.FromMinutes(10).TotalMinutes, $"apphealth|{WebFarmServerTaskInfo.OBJECT_TYPE}"))
                     .ConfigureAwait(false);
-                
-                if (data.Any())
+
+                var errorTasks = data.Where(task => !string.IsNullOrEmpty(task.ErrorMessage)).ToList();
+
+                if (errorTasks.Count != 0)
                 {
-                    result = new HealthCheckResult(HealthStatus.Degraded, "Web Farm Tasks Contain Errors.");
+                    result = HealthCheckResult.Degraded("Web Farm Tasks Contain Errors.");
                 }
 
                 return result;
             }
             catch (Exception e)
             {
-                return new HealthCheckResult(HealthStatus.Unhealthy, e.Message, e);
+                return HealthCheckResult.Unhealthy(e.Message, e);
             }
         }
     }

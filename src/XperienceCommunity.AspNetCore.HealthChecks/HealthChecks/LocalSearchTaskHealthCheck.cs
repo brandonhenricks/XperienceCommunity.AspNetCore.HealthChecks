@@ -10,7 +10,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
     /// Local Search Task Health Check
     /// </summary>
     /// <remarks>Checks the Local Search Tasks to determine if any errors are present.</remarks>
-    public sealed class LocalSearchTaskHealthCheck: IHealthCheck
+    public sealed class LocalSearchTaskHealthCheck : IHealthCheck
     {
         private readonly ISearchTaskInfoProvider _searchTaskInfoProvider;
         private readonly IProgressiveCache _cache;
@@ -25,14 +25,13 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
 
             try
-            {               
+            {
                 // Asynchronously loads data and ensures caching
                 var data = await _cache.LoadAsync(async cacheSettings =>
                     {
                         // Calls an async method that loads the required data
                         var result = await _searchTaskInfoProvider
                             .Get()
-                            .WhereNotNull(nameof(SearchTaskInfo.SearchTaskErrorMessage))
                             .GetEnumerableTypedResultAsync(CommandBehavior.CloseConnection, true, cancellationToken)
                             .ConfigureAwait(false);
 
@@ -41,22 +40,29 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                         return result;
                     }, new CacheSettings(TimeSpan.FromMinutes(10).TotalMinutes, $"apphealth|{SearchTaskInfo.OBJECT_TYPE}"))
                     .ConfigureAwait(false);
-                
+
 
                 var searchTasks = data.ToList();
 
                 if (searchTasks.Count == 0)
                 {
-                    return new HealthCheckResult(HealthStatus.Healthy);
+                    return HealthCheckResult.Healthy();
                 }
 
-                var resultData = GetData(searchTasks);
+                var errorTasks = searchTasks.Where(searchTask => !string.IsNullOrEmpty(searchTask.SearchTaskErrorMessage)).ToList();
 
-                return new HealthCheckResult(HealthStatus.Degraded, "Local Search Tasks Contain Errors.", data: resultData);
+                if (errorTasks.Count == 0)
+                {
+                    return HealthCheckResult.Healthy();
+                }
+
+                var resultData = GetData(errorTasks);
+
+                return HealthCheckResult.Degraded("Local Search Tasks Contain Errors.", data: resultData);
             }
             catch (Exception e)
             {
-                return new HealthCheckResult(HealthStatus.Unhealthy, e.Message, e);
+                return HealthCheckResult.Unhealthy(e.Message, e);
             }
         }
 

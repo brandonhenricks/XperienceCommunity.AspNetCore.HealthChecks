@@ -1,7 +1,8 @@
-﻿using System.Data;
-using CMS.DataEngine;
+﻿using System.Collections.ObjectModel;
+using System.Data;
 using CMS.EventLog;
 using CMS.Helpers;
+using CMS.Search;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
@@ -30,11 +31,6 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                 {
                     var results = await _eventLogInfoProvider
                         .Get()
-                        .Where(new WhereCondition(nameof(EventLogInfo.EventType), QueryOperator.Equals, "E"))
-                        .And(new WhereCondition(nameof(EventLogInfo.EventTime), QueryOperator.GreaterOrEquals, DateTime.Now.AddDays(-1)))
-                        .OrderByDescending(
-                            nameof(EventLogInfo.EventID))
-                        .TopN(100)
                         .GetEnumerableTypedResultAsync(CommandBehavior.CloseConnection, true, cancellationToken)
                         .ConfigureAwait(false);
 
@@ -44,20 +40,28 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                 }, new CacheSettings(TimeSpan.FromMinutes(10).TotalMinutes, $"apphealth|{EventLogInfo.OBJECT_TYPE}"))
                     .ConfigureAwait(false);
 
-                var exceptionEvents = data.ToList();
+                var eventList = data.ToList();
 
+                var exceptionEvents = eventList.Where(e => e.EventType == "E" && e.EventTime >= DateTime.UtcNow.AddHours(-24)).OrderByDescending(x=> x.EventID).ToList();
+                
                 if (exceptionEvents.Count >= 25)
                 {
-                    return new HealthCheckResult(HealthStatus.Degraded,
-                        $"There are {exceptionEvents.Count} errors in the event log.");
+                    return HealthCheckResult.Degraded($"There are {exceptionEvents.Count} errors in the event log.", null, GetData(exceptionEvents));
                 }
 
-                return new HealthCheckResult(HealthStatus.Healthy);
+                return HealthCheckResult.Healthy();
             }
             catch (Exception e)
             {
-                return new HealthCheckResult(HealthStatus.Unhealthy, e.Message, e);
+                return HealthCheckResult.Unhealthy(e.Message, e);
             }
+        }
+
+        private static IReadOnlyDictionary<string, object> GetData(IEnumerable<EventLogInfo> objects)
+        {
+            var dictionary = objects.ToDictionary<EventLogInfo, string, object>(e => e.EventID.ToString(), ev => ev.Exception);
+
+            return new ReadOnlyDictionary<string, object>(dictionary);
         }
     }
 }
