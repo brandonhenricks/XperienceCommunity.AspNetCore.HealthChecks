@@ -39,6 +39,35 @@ public void Configure(IApplicationBuilder app)
     app.UseHealthChecks("/kentico-health");
 }
 ```
+## Health Checks
+
+### Azure Search Task Health Check
+
+The `AzureSearchTaskHealthCheck` is a health check implementation that checks the Azure Search Task for any errors.
+
+### EventLogHealthCheck
+
+The `EventLogHealthCheck` class is an implementation of the `IHealthCheck` interface. It is used to perform a health check on the event log by investigating the last 100 event log entries for errors. 
+
+### LocalSearchTaskHealthCheck
+
+The `LocalSearchTaskHealthCheck` class is an implementation of the `IHealthCheck` interface. It is responsible for checking the health of local search tasks and determining if any errors are present. This health check is used to monitor the status of search tasks in the application.
+
+### SiteConfigurationHealthCheck
+
+The `SiteConfigurationHealthCheck` class is an implementation of the `IHealthCheck` interface. It is responsible for checking the health of the site configuration in a CMS (Content Management System) application. 
+
+### SitePresentationHealthCheck
+
+The `SitePresentationHealthCheck` class is an implementation of the `IHealthCheck` interface. It is responsible for checking the health of the site presentation configuration in an ASP.NET Core application.
+
+### WebFarmHealthCheck
+
+The `WebFarmHealthCheck` class is an implementation of the `IHealthCheck` interface provided by the `Microsoft.Extensions.Diagnostics.HealthChecks` namespace. It is used to perform health checks on the Kentico web farm servers.
+
+### WebFarmTaskHealthCheck
+
+The `WebFarmTaskHealthCheck` class is an implementation of the `IHealthCheck` interface. It is responsible for checking the health of the web farm server tasks. 
 
 ## Built With
 
@@ -53,8 +82,6 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 ## Authors
 
 * **Brandon Henricks** - *Initial work* - [Brandon Henricks](https://github.com/brandonhenricks)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
 
 ## License
 

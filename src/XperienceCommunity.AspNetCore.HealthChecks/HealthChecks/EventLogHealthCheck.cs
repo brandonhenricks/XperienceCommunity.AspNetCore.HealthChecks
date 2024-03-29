@@ -2,7 +2,6 @@
 using System.Data;
 using CMS.EventLog;
 using CMS.Helpers;
-using CMS.Search;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
@@ -42,8 +41,8 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
                 var eventList = data.ToList();
 
-                var exceptionEvents = eventList.Where(e => e.EventType == "E" && e.EventTime >= DateTime.UtcNow.AddHours(-24)).OrderByDescending(x=> x.EventID).ToList();
-                
+                var exceptionEvents = eventList.Where(e => e.EventType == "E" && e.EventTime >= DateTime.UtcNow.AddHours(-24)).OrderByDescending(x => x.EventID).ToList();
+
                 if (exceptionEvents.Count >= 25)
                 {
                     return HealthCheckResult.Degraded($"There are {exceptionEvents.Count} errors in the event log.", null, GetData(exceptionEvents));

@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System.Collections.ObjectModel;
+using System.Data;
 using CMS.Helpers;
 using CMS.WebFarmSync;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -44,7 +45,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
                 if (errorTasks.Count != 0)
                 {
-                    result = HealthCheckResult.Degraded("Web Farm Tasks Contain Errors.");
+                    result = HealthCheckResult.Degraded("Web Farm Tasks Contain Errors.", null, GetData(errorTasks));
                 }
 
                 return result;
@@ -57,6 +58,13 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             {
                 return HealthCheckResult.Unhealthy(e.Message, e);
             }
+        }
+
+        private static IReadOnlyDictionary<string, object> GetData(IEnumerable<WebFarmServerTaskInfo> objects)
+        {
+            var dictionary = objects.ToDictionary<WebFarmServerTaskInfo, string, object>(webFarmTask => webFarmTask.TaskID.ToString(), webFarmTask => webFarmTask.ErrorMessage);
+
+            return new ReadOnlyDictionary<string, object>(dictionary);
         }
     }
 }
