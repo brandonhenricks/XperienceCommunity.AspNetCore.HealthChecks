@@ -13,9 +13,9 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
         public SitePresentationHealthCheck(ISiteService siteService, IHttpContextAccessor httpContextAccessor, ISiteInfoProvider siteInfoProvider)
         {
-            _siteService = siteService;
-            _httpContextAccessor = httpContextAccessor;
-            _siteInfoProvider = siteInfoProvider;
+            _siteService = siteService ?? throw new ArgumentNullException(nameof(siteService));
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+            _siteInfoProvider = siteInfoProvider ?? throw new ArgumentNullException(nameof(siteInfoProvider));
         }
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())

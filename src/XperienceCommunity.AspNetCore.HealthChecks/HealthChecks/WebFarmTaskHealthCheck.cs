@@ -29,7 +29,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                 var data = await _cache.LoadAsync(async cacheSettings =>
                     {
                         // Calls an async method that loads the required data
-                        var result = await _webFarmTaskInfoProvider
+                        var query = await _webFarmTaskInfoProvider
                             .Get()
                             .WhereNotNull(nameof(WebFarmServerTaskInfo.ErrorMessage))
                             .GetEnumerableTypedResultAsync(CommandBehavior.CloseConnection, true, cancellationToken)
@@ -38,12 +38,12 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
                         cacheSettings.CacheDependency = CacheHelper.GetCacheDependency($"{WebFarmServerTaskInfo.OBJECT_TYPE}|all");
 
-                        return result;
+                        return query.ToList();
                     }, new CacheSettings(TimeSpan.FromMinutes(10).TotalMinutes, $"apphealth|{WebFarmServerTaskInfo.OBJECT_TYPE}"))
                     .ConfigureAwait(false);
 
 
-                if (data.Any())
+                if (data.Count != 0)
                 {
                     result = new HealthCheckResult(HealthStatus.Degraded, "Web Farm Tasks Contain Errors.");
                 }
