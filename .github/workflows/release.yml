@@ -28,8 +28,8 @@ jobs:
     - name: Restore Project Dependencies
       run: dotnet restore  
     - name: Build Project
-      run: dotnet build --no-restore --configuration Release /p:Version=${VERSION} /p:TargetFrameworks=net6.0;net8.0
+      run: dotnet build --no-restore --configuration Release /p:Version=${VERSION}
     - name: Pack Project
-      run: dotnet pack --configuration Release /p:Version=${VERSION} /p:TargetFrameworks=net6.0;net8.0 --no-build --output .
+      run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output .
     - name: Push Project to Nuget
       run: dotnet nuget push XperienceCommunity.AspNetCore.HealthChecks.${VERSION}.nupkg -k ${{secrets.NUGET_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate
