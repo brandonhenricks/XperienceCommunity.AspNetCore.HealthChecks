@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using XperienceCommunity.AspNetCore.HealthChecks.HealthChecks;
+using XperienceCommunity.AspNetCore.HealthChecks.Publishers;
 
 namespace XperienceCommunity.AspNetCore.HealthChecks
 {
@@ -15,9 +17,21 @@ namespace XperienceCommunity.AspNetCore.HealthChecks
         /// Adds Kentico Specific Health Checks
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection"/> to add the health checks to.</param>
+        /// <param name="useEventLogPublisher">Optionally Use the Event Log Publisher.</param>
         /// <returns>The <see cref="IHealthChecksBuilder"/> instance.</returns>
-        public static IHealthChecksBuilder AddKenticoHealthChecks(this IServiceCollection services)
-        {
+        public static IHealthChecksBuilder AddKenticoHealthChecks(this IServiceCollection services, bool useEventLogPublisher)
+        { 
+            if (useEventLogPublisher)
+            {
+                services.Configure<HealthCheckPublisherOptions>(options =>
+                {
+                    options.Delay = TimeSpan.FromSeconds(2);
+                    options.Predicate = healthCheck => healthCheck.Tags.Contains(Kentico);
+                });
+
+                services.AddSingleton<IHealthCheckPublisher, KenticoEventLogHealthCheckPublisher>();
+            }
+
             return services
                 .AddHealthChecks()
                 .AddCheck<SiteConfigurationHealthCheck>("Site Configuration Health Check", tags: s_tags)
@@ -28,7 +42,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks
                 .AddCheck<AzureSearchTaskHealthCheck>("Azure Search Task Health Checks", tags: s_tags)
                 .AddCheck<WebFarmTaskHealthCheck>("Web Farm Task Health Check", tags: s_tags)
                 .AddCheck<LocalSearchTaskHealthCheck>("Local Task Health Check", tags: s_tags);
-                
+
         }
     }
 }
