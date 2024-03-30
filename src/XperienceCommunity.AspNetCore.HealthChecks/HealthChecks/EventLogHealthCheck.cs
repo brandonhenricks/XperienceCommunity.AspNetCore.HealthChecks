@@ -41,7 +41,12 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
                 var eventList = data.ToList();
 
-                var exceptionEvents = eventList.Where(e => e.EventType == "E" && e.EventTime >= DateTime.UtcNow.AddHours(-24)).OrderByDescending(x => x.EventID).ToList();
+                var exceptionEvents = eventList
+                    .Where(e => e.EventType == "E" 
+                                && e.EventTime >= DateTime.UtcNow.AddHours(-24) 
+                                && !e.Source.Equals(nameof(HealthReport), StringComparison.OrdinalIgnoreCase))
+                    .OrderByDescending(x => x.EventID)
+                    .ToList();
 
                 if (exceptionEvents.Count >= 25)
                 {

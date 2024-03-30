@@ -38,7 +38,9 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
                 var sites = data.ToList();
 
-                return sites.Count == 0 ? new HealthCheckResult(HealthStatus.Unhealthy, "There are no sites configured.") : new HealthCheckResult(HealthStatus.Healthy, "Sites have been added to the CMS.");
+                return sites.Count == 0 ?
+                    HealthCheckResult.Unhealthy("There are no sites configured.")
+                    : HealthCheckResult.Healthy("Sites have been added to the CMS.");
             }
             catch (InvalidOperationException ex)
             {
