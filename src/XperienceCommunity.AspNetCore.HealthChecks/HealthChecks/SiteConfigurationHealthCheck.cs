@@ -24,7 +24,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             try
             {
-                var sites = (await GetDataForTypeAsync(cancellationToken)).ToList();
+                var sites = await GetDataForTypeAsync(cancellationToken);
 
                 return sites.Count == 0 ?
                     HealthCheckResult.Unhealthy("There are no sites configured.")
@@ -32,7 +32,9 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             }
             catch (InvalidOperationException ex)
             {
-                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase) || ex.Message.Contains("current state", StringComparison.OrdinalIgnoreCase))
+                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase)
+                    || ex.Message.Contains("current state", StringComparison.OrdinalIgnoreCase)
+                    || ex.Message.Contains("reader is closed", StringComparison.OrdinalIgnoreCase))
                 {
                     return HealthCheckResult.Healthy();
                 }
@@ -52,7 +54,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             return query.ToList();
         }
 
-        protected override async Task<IEnumerable<SiteInfo>> GetDataForTypeAsync(CancellationToken cancellationToken = default)
+        protected override async Task<List<SiteInfo>> GetDataForTypeAsync(CancellationToken cancellationToken = default)
         {
             var query = _siteInfoProvider.Get();
             return await query.ToListAsync(cancellationToken: cancellationToken);

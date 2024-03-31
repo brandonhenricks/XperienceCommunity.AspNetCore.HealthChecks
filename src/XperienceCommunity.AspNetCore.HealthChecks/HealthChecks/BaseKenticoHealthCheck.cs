@@ -19,7 +19,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task that represents the asynchronous operation and contains an enumerable collection of Kentico objects.</returns>
-        protected abstract Task<IEnumerable<T>> GetDataForTypeAsync(CancellationToken cancellationToken = default);
+        protected abstract Task<List<T>> GetDataForTypeAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets the error data for the specified Kentico objects.

@@ -1,5 +1,4 @@
-﻿using System.Data;
-using CMS.DataEngine;
+﻿using CMS.DataEngine;
 
 namespace XperienceCommunity.AspNetCore.HealthChecks.Extensions
 {
@@ -14,7 +13,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.Extensions
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static async Task<IEnumerable<TObject>> ToListAsync<TQuery, TObject>(this IObjectQuery<TQuery, TObject> query, CancellationToken cancellationToken = default)
+        public static async Task<List<TObject>> ToListAsync<TQuery, TObject>(this IObjectQuery<TQuery, TObject> query, CancellationToken cancellationToken = default)
         where TQuery : IObjectQuery<TQuery, TObject>
         where TObject : BaseInfo
         {
@@ -28,8 +27,8 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.Extensions
                 //.GetEnumerableTypedResultAsync(commandBehavior: CommandBehavior.CloseConnection, true, cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
 
-            
-            return results.ToList() ?? Enumerable.Empty<TObject>();
+
+            return results?.ToList() ?? new List<TObject>(0);
         }
     }
 }

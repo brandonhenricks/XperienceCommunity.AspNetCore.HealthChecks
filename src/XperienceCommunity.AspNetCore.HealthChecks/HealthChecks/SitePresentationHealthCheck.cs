@@ -71,8 +71,9 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             }
             catch (InvalidOperationException ex)
             {
-
-                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase))
+                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase)
+                    || ex.Message.Contains("current state", StringComparison.OrdinalIgnoreCase)
+                    || ex.Message.Contains("reader is closed", StringComparison.OrdinalIgnoreCase))
                 {
                     return HealthCheckResult.Healthy();
                 }
@@ -92,7 +93,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             return new List<SiteInfo>() { query };
         }
 
-        protected override Task<IEnumerable<SiteInfo>> GetDataForTypeAsync(CancellationToken cancellationToken = default)
+        protected override Task<List<SiteInfo>> GetDataForTypeAsync(CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

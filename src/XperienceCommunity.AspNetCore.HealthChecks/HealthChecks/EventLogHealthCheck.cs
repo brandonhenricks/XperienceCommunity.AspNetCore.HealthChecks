@@ -1,8 +1,6 @@
 ﻿using System.Collections.ObjectModel;
-using System.Data;
 using CMS.EventLog;
 using CMS.Helpers;
-using CMS.Search.Azure;
 using CMS.SiteProvider;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using XperienceCommunity.AspNetCore.HealthChecks.Extensions;
@@ -29,7 +27,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             try
             {
-                var eventList = (await GetDataForTypeAsync(cancellationToken)).ToList();
+                var eventList = await GetDataForTypeAsync(cancellationToken);
 
                 var exceptionEvents = eventList
                     .Where(e => e.EventType == "E"
@@ -47,7 +45,9 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             }
             catch (InvalidOperationException ex)
             {
-                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase) || ex.Message.Contains("current state", StringComparison.OrdinalIgnoreCase))
+                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase)
+                    || ex.Message.Contains("current state", StringComparison.OrdinalIgnoreCase)
+                    || ex.Message.Contains("reader is closed", StringComparison.OrdinalIgnoreCase))
                 {
                     return HealthCheckResult.Healthy();
                 }
@@ -64,16 +64,18 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             var query = _eventLogInfoProvider.Get()
                 .WhereEquals(nameof(EventLogInfo.EventType), "E")
-                .WhereNotEquals(nameof(EventLogInfo.Source), nameof(HealthReport));
+                .WhereNotEquals(nameof(EventLogInfo.Source), nameof(HealthReport))
+                .OnSite(SiteContext.CurrentSiteID);
 
             return query.ToList();
         }
 
-        protected override async Task<IEnumerable<EventLogInfo>> GetDataForTypeAsync(CancellationToken cancellationToken = default)
+        protected override async Task<List<EventLogInfo>> GetDataForTypeAsync(CancellationToken cancellationToken = default)
         {
             var query = _eventLogInfoProvider.Get()
                 .WhereEquals(nameof(EventLogInfo.EventType), "E")
-                .WhereNotEquals(nameof(EventLogInfo.Source), nameof(HealthReport));
+                .WhereNotEquals(nameof(EventLogInfo.Source), nameof(HealthReport))
+                .OnSite(SiteContext.CurrentSiteID);
 
             return await query.ToListAsync(cancellationToken: cancellationToken);
         }

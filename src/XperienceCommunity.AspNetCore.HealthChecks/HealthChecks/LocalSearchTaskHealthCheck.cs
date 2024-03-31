@@ -26,7 +26,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             try
             {
-                var searchTasks = (await GetDataForTypeAsync(cancellationToken)).ToList();
+                var searchTasks = await GetDataForTypeAsync(cancellationToken);
 
                 if (searchTasks.Count == 0)
                 {
@@ -37,7 +37,9 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             }
             catch (InvalidOperationException ex)
             {
-                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase) || ex.Message.Contains("current state", StringComparison.OrdinalIgnoreCase))
+                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase)
+                    || ex.Message.Contains("current state", StringComparison.OrdinalIgnoreCase)
+                    || ex.Message.Contains("reader is closed", StringComparison.OrdinalIgnoreCase))
                 {
                     return HealthCheckResult.Healthy();
                 }
@@ -58,7 +60,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             return query.ToList();
         }
 
-        protected override async Task<IEnumerable<SearchTaskInfo>> GetDataForTypeAsync(CancellationToken cancellationToken = default)
+        protected override async Task<List<SearchTaskInfo>> GetDataForTypeAsync(CancellationToken cancellationToken = default)
         {
             
             var query = _searchTaskInfoProvider.Get()
