@@ -19,13 +19,13 @@ namespace XperienceCommunity.AspNetCore.HealthChecks
         /// <param name="services">The <see cref="IServiceCollection"/> to add the health checks to.</param>
         /// <param name="useEventLogPublisher">Optionally Use the Event Log Publisher.</param>
         /// <returns>The <see cref="IHealthChecksBuilder"/> instance.</returns>
-        public static IHealthChecksBuilder AddKenticoHealthChecks(this IServiceCollection services, bool useEventLogPublisher)
+        public static IHealthChecksBuilder AddKenticoHealthChecks(this IServiceCollection services, bool useEventLogPublisher = false)
         { 
             if (useEventLogPublisher)
             {
                 services.Configure<HealthCheckPublisherOptions>(options =>
                 {
-                    options.Delay = TimeSpan.FromSeconds(2);
+                    options.Delay = TimeSpan.FromSeconds(15);
                     options.Predicate = healthCheck => healthCheck.Tags.Contains(Kentico);
                 });
 
