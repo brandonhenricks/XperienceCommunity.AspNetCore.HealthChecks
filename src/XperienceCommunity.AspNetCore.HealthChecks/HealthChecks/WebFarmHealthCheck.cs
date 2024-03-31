@@ -13,7 +13,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             var webFarmServers = WebFarmContext.EnabledServers;
 
-            if (webFarmServers.Count == 0)
+            if (webFarmServers == null || webFarmServers.Count == 0)
             {
                 return Task.FromResult(HealthCheckResult.Degraded("No Web Farm Info Returned"));
             }
@@ -22,7 +22,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             {
                 if (server.Status == WebFarmServerStatusEnum.NotResponding)
                 {
-                    return Task.FromResult(HealthCheckResult.Degraded("Server {server.ServerName} is not responding."));
+                    return Task.FromResult(HealthCheckResult.Degraded($"Server {server.ServerName} is not responding."));
                 }
             }
 

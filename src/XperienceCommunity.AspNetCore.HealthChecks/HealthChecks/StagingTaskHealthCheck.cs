@@ -63,7 +63,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                             cs.CacheDependency =
                                 CacheHelper.GetCacheDependency($"{SynchronizationInfo.OBJECT_TYPE}|all");
 
-                            return results;
+                            return results.ToList();
                         },
                         new CacheSettings(TimeSpan.FromMinutes(10).TotalMinutes,
                             $"apphealth|{SynchronizationInfo.OBJECT_TYPE}"))
@@ -90,7 +90,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             }
             catch (InvalidOperationException ex)
             {
-                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase))
+                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase) || ex.Message.Contains("current state", StringComparison.OrdinalIgnoreCase))
                 {
                     return HealthCheckResult.Healthy();
                 }

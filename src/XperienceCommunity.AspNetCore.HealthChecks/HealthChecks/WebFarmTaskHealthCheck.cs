@@ -1,15 +1,15 @@
 ﻿using System.Collections.ObjectModel;
-using System.Data;
 using CMS.Helpers;
 using CMS.WebFarmSync;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using XperienceCommunity.AspNetCore.HealthChecks.Extensions;
 
 namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 {
     /// <summary>
     /// Web Farm Server Task Health Check
     /// </summary>
-    public sealed class WebFarmTaskHealthCheck : IHealthCheck
+    public sealed class WebFarmTaskHealthCheck : BaseKenticoHealthCheck<WebFarmServerTaskInfo>, IHealthCheck
     {
         private readonly IWebFarmServerTaskInfoProvider _webFarmTaskInfoProvider;
         private readonly IProgressiveCache _cache;
@@ -27,32 +27,18 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
             try
             {
-                var data = await _cache.LoadAsync(async cacheSettings =>
-                    {
-                        // Calls an async method that loads the required data
-                        var query = await _webFarmTaskInfoProvider
-                            .Get()
-                            .GetEnumerableTypedResultAsync(CommandBehavior.CloseConnection, true, cancellationToken)
-                            .ConfigureAwait(false);
+                var data = (await GetDataForTypeAsync(cancellationToken)).ToList();
 
-                        cacheSettings.CacheDependency = CacheHelper.GetCacheDependency($"{WebFarmServerTaskInfo.OBJECT_TYPE}|all");
-
-                        return query;
-                    }, new CacheSettings(TimeSpan.FromMinutes(10).TotalMinutes, $"apphealth|{WebFarmServerTaskInfo.OBJECT_TYPE}"))
-                    .ConfigureAwait(false);
-
-                var errorTasks = data.Where(task => !string.IsNullOrEmpty(task.ErrorMessage)).ToList();
-
-                if (errorTasks.Count != 0)
+                if (data.Count != 0)
                 {
-                    result = HealthCheckResult.Degraded("Web Farm Tasks Contain Errors.", null, GetData(errorTasks));
+                    result = HealthCheckResult.Degraded("Web Farm Tasks Contain Errors.", null, GetErrorData(data));
                 }
 
                 return result;
             }
             catch (InvalidOperationException ex)
             {
-                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase))
+                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase) || ex.Message.Contains("current state", StringComparison.OrdinalIgnoreCase))
                 {
                     return HealthCheckResult.Healthy();
                 }
@@ -65,7 +51,25 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             }
         }
 
-        private static IReadOnlyDictionary<string, object> GetData(IEnumerable<WebFarmServerTaskInfo> objects)
+        protected override IEnumerable<WebFarmServerTaskInfo> GetDataForType()
+        {
+            var query = _webFarmTaskInfoProvider
+                .Get()
+                .WhereNotEmpty(nameof(WebFarmServerTaskInfo.ErrorMessage));
+
+            return query.ToList();
+        }
+
+        protected override async Task<IEnumerable<WebFarmServerTaskInfo>> GetDataForTypeAsync(CancellationToken cancellationToken = default)
+        {
+            var query = _webFarmTaskInfoProvider
+                .Get()
+                .WhereNotEmpty(nameof(WebFarmServerTaskInfo.ErrorMessage));
+
+            return await query.ToListAsync(cancellationToken: cancellationToken);
+        }
+
+        protected override IReadOnlyDictionary<string, object> GetErrorData(IEnumerable<WebFarmServerTaskInfo> objects)
         {
             var dictionary = objects.ToDictionary<WebFarmServerTaskInfo, string, object>(webFarmTask => webFarmTask.TaskID.ToString(), webFarmTask => webFarmTask.ErrorMessage);
 

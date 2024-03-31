@@ -10,9 +10,9 @@
       },
       "Kentico.Xperience.Libraries": {
         "type": "Direct",
-        "requested": "[13.0.70, 13.1.0)",
-        "resolved": "13.0.70",
-        "contentHash": "kz1UJIMqkkE1JIZGAB1767Two+kuGtDO/kkgmu8B0Q70DKkweQoIRSNovXSOyCxMcxb7JKrB2PNhQsfp83syoA==",
+        "requested": "[13.0.74, 13.1.0)",
+        "resolved": "13.0.74",
+        "contentHash": "JrwjH5o5kXVdSQqBHjDtoEbhcjGT/chRpodnhM8e/vCryfzBr1qwAXVwk+G7E22dR5qynUkNed9e/pfQxxNTrA==",
         "dependencies": {
           "AWSSDK.Core": "3.5.1.13",
           "AWSSDK.S3": "3.5.1.4",
@@ -1837,9 +1837,9 @@
       },
       "Kentico.Xperience.Libraries": {
         "type": "Direct",
-        "requested": "[13.0.70, 13.1.0)",
-        "resolved": "13.0.70",
-        "contentHash": "kz1UJIMqkkE1JIZGAB1767Two+kuGtDO/kkgmu8B0Q70DKkweQoIRSNovXSOyCxMcxb7JKrB2PNhQsfp83syoA==",
+        "requested": "[13.0.74, 13.1.0)",
+        "resolved": "13.0.74",
+        "contentHash": "JrwjH5o5kXVdSQqBHjDtoEbhcjGT/chRpodnhM8e/vCryfzBr1qwAXVwk+G7E22dR5qynUkNed9e/pfQxxNTrA==",
         "dependencies": {
           "AWSSDK.Core": "3.5.1.13",
           "AWSSDK.S3": "3.5.1.4",

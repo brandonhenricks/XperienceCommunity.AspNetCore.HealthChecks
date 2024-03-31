@@ -5,7 +5,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 {
-    public sealed class SitePresentationHealthCheck : IHealthCheck
+    public sealed class SitePresentationHealthCheck : BaseKenticoHealthCheck<SiteInfo>, IHealthCheck
     {
         private readonly ISiteService _siteService;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -22,7 +22,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())
         {
-            var currentSite = await _siteInfoProvider.GetAsync(_siteService.CurrentSite.SiteID);
+            var currentSite = await _siteInfoProvider.GetAsync(_siteService.CurrentSite.SiteID, cancellationToken);
 
             if (currentSite == null)
             {
@@ -83,6 +83,23 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             {
                 return HealthCheckResult.Unhealthy("The current site is not configured correctly.");
             }
+        }
+
+        protected override IEnumerable<SiteInfo> GetDataForType()
+        {
+            var query = _siteInfoProvider.Get(_siteService.CurrentSite.SiteID);
+
+            return new List<SiteInfo>() { query };
+        }
+
+        protected override Task<IEnumerable<SiteInfo>> GetDataForTypeAsync(CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override IReadOnlyDictionary<string, object> GetErrorData(IEnumerable<SiteInfo> objects)
+        {
+            throw new NotImplementedException();
         }
     }
 }

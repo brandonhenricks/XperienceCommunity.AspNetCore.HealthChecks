@@ -2,7 +2,10 @@
 using System.Data;
 using CMS.EventLog;
 using CMS.Helpers;
+using CMS.Search.Azure;
+using CMS.SiteProvider;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using XperienceCommunity.AspNetCore.HealthChecks.Extensions;
 
 namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 {
@@ -10,7 +13,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
     /// Event Log Health Check
     /// </summary>
     /// <remarks>Investigates the Last 100 Event Log Entries for Errors.</remarks>
-    public sealed class EventLogHealthCheck : IHealthCheck
+    public sealed class EventLogHealthCheck : BaseKenticoHealthCheck<EventLogInfo>, IHealthCheck
     {
         private readonly IEventLogInfoProvider _eventLogInfoProvider;
         private readonly IProgressiveCache _cache;
@@ -26,38 +29,25 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             try
             {
-                var data = await _cache.LoadAsync(async cs =>
-                {
-                    var results = await _eventLogInfoProvider
-                        .Get()
-                        .GetEnumerableTypedResultAsync(CommandBehavior.CloseConnection, true, cancellationToken)
-                        .ConfigureAwait(false);
-
-                    cs.CacheDependency = CacheHelper.GetCacheDependency($"{EventLogInfo.OBJECT_TYPE}|all");
-
-                    return results;
-                }, new CacheSettings(TimeSpan.FromMinutes(10).TotalMinutes, $"apphealth|{EventLogInfo.OBJECT_TYPE}"))
-                    .ConfigureAwait(false);
-
-                var eventList = data.ToList();
+                var eventList = (await GetDataForTypeAsync(cancellationToken)).ToList();
 
                 var exceptionEvents = eventList
-                    .Where(e => e.EventType == "E" 
-                                && e.EventTime >= DateTime.UtcNow.AddHours(-24) 
+                    .Where(e => e.EventType == "E"
+                                && e.EventTime >= DateTime.UtcNow.AddHours(-24)
                                 && !e.Source.Equals(nameof(HealthReport), StringComparison.OrdinalIgnoreCase))
                     .OrderByDescending(x => x.EventID)
                     .ToList();
 
                 if (exceptionEvents.Count >= 25)
                 {
-                    return HealthCheckResult.Degraded($"There are {exceptionEvents.Count} errors in the event log.", null, GetData(exceptionEvents));
+                    return HealthCheckResult.Degraded($"There are {exceptionEvents.Count} errors in the event log.", null, GetErrorData(exceptionEvents));
                 }
 
                 return HealthCheckResult.Healthy();
             }
             catch (InvalidOperationException ex)
             {
-                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase))
+                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase) || ex.Message.Contains("current state", StringComparison.OrdinalIgnoreCase))
                 {
                     return HealthCheckResult.Healthy();
                 }
@@ -70,7 +60,25 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             }
         }
 
-        private static IReadOnlyDictionary<string, object> GetData(IEnumerable<EventLogInfo> objects)
+        protected override IEnumerable<EventLogInfo> GetDataForType()
+        {
+            var query = _eventLogInfoProvider.Get()
+                .WhereEquals(nameof(EventLogInfo.EventType), "E")
+                .WhereNotEquals(nameof(EventLogInfo.Source), nameof(HealthReport));
+
+            return query.ToList();
+        }
+
+        protected override async Task<IEnumerable<EventLogInfo>> GetDataForTypeAsync(CancellationToken cancellationToken = default)
+        {
+            var query = _eventLogInfoProvider.Get()
+                .WhereEquals(nameof(EventLogInfo.EventType), "E")
+                .WhereNotEquals(nameof(EventLogInfo.Source), nameof(HealthReport));
+
+            return await query.ToListAsync(cancellationToken: cancellationToken);
+        }
+
+        protected override IReadOnlyDictionary<string, object> GetErrorData(IEnumerable<EventLogInfo> objects)
         {
             var dictionary = objects.ToDictionary<EventLogInfo, string, object>(e => e.EventID.ToString(), ev => ev.Exception);
 

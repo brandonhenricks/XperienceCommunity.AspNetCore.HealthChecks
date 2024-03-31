@@ -1,7 +1,7 @@
-﻿using System.Data;
-using CMS.Helpers;
+﻿using CMS.Helpers;
 using CMS.SiteProvider;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using XperienceCommunity.AspNetCore.HealthChecks.Extensions;
 
 namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 {
@@ -9,7 +9,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
     /// Site Configuration Health Check
     /// </summary>
     /// <remarks>Investigates the Site Info to determine if any sites are configured.</remarks>
-    public sealed class SiteConfigurationHealthCheck : IHealthCheck
+    public sealed class SiteConfigurationHealthCheck : BaseKenticoHealthCheck<SiteInfo>, IHealthCheck
     {
         private readonly ISiteInfoProvider _siteInfoProvider;
         private readonly IProgressiveCache _cache;
@@ -24,19 +24,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             try
             {
-                var data = await _cache.LoadAsync(async cs =>
-                    {
-                        var results = await _siteInfoProvider.Get()
-                            .GetEnumerableTypedResultAsync(CommandBehavior.CloseConnection, true, cancellationToken)
-                            .ConfigureAwait(false);
-
-                        cs.CacheDependency = CacheHelper.GetCacheDependency($"{SiteInfo.OBJECT_TYPE}|all");
-
-                        return results;
-                    }, new CacheSettings(TimeSpan.FromMinutes(10).TotalMinutes, $"apphealth|{SiteInfo.OBJECT_TYPE}"))
-                    .ConfigureAwait(false);
-
-                var sites = data.ToList();
+                var sites = (await GetDataForTypeAsync(cancellationToken)).ToList();
 
                 return sites.Count == 0 ?
                     HealthCheckResult.Unhealthy("There are no sites configured.")
@@ -44,7 +32,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             }
             catch (InvalidOperationException ex)
             {
-                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase))
+                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase) || ex.Message.Contains("current state", StringComparison.OrdinalIgnoreCase))
                 {
                     return HealthCheckResult.Healthy();
                 }
@@ -55,6 +43,24 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             {
                 return new HealthCheckResult(HealthStatus.Unhealthy, e.Message, e);
             }
+        }
+
+        protected override IEnumerable<SiteInfo> GetDataForType()
+        {
+            var query = _siteInfoProvider.Get();
+            
+            return query.ToList();
+        }
+
+        protected override async Task<IEnumerable<SiteInfo>> GetDataForTypeAsync(CancellationToken cancellationToken = default)
+        {
+            var query = _siteInfoProvider.Get();
+            return await query.ToListAsync(cancellationToken: cancellationToken);
+        }
+
+        protected override IReadOnlyDictionary<string, object> GetErrorData(IEnumerable<SiteInfo> objects)
+        {
+            throw new NotImplementedException();
         }
     }
 }

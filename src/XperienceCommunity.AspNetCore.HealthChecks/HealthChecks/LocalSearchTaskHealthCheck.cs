@@ -3,6 +3,7 @@ using System.Data;
 using CMS.Helpers;
 using CMS.Search;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using XperienceCommunity.AspNetCore.HealthChecks.Extensions;
 
 namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 {
@@ -10,7 +11,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
     /// Local Search Task Health Check
     /// </summary>
     /// <remarks>Checks the Local Search Tasks to determine if any errors are present.</remarks>
-    public sealed class LocalSearchTaskHealthCheck : IHealthCheck
+    public sealed class LocalSearchTaskHealthCheck : BaseKenticoHealthCheck<SearchTaskInfo>, IHealthCheck
     {
         private readonly ISearchTaskInfoProvider _searchTaskInfoProvider;
         private readonly IProgressiveCache _cache;
@@ -25,42 +26,18 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             try
             {
-                // Asynchronously loads data and ensures caching
-                var data = await _cache.LoadAsync(async cacheSettings =>
-                    {
-                        // Calls an async method that loads the required data
-                        var result = await _searchTaskInfoProvider
-                            .Get()
-                            .GetEnumerableTypedResultAsync(CommandBehavior.CloseConnection, true, cancellationToken)
-                            .ConfigureAwait(false);
-
-                        cacheSettings.CacheDependency = CacheHelper.GetCacheDependency($"{SearchTaskInfo.OBJECT_TYPE}|all");
-
-                        return result;
-                    }, new CacheSettings(TimeSpan.FromMinutes(10).TotalMinutes, $"apphealth|{SearchTaskInfo.OBJECT_TYPE}"))
-                    .ConfigureAwait(false);
-
-                var searchTasks = data.ToList();
+                var searchTasks = (await GetDataForTypeAsync(cancellationToken)).ToList();
 
                 if (searchTasks.Count == 0)
                 {
                     return HealthCheckResult.Healthy();
                 }
 
-                var errorTasks = searchTasks.Where(searchTask => !string.IsNullOrEmpty(searchTask.SearchTaskErrorMessage)).ToList();
-
-                if (errorTasks.Count == 0)
-                {
-                    return HealthCheckResult.Healthy();
-                }
-
-                var resultData = GetData(errorTasks);
-
-                return HealthCheckResult.Degraded("Local Search Tasks Contain Errors.", data: resultData);
+                return HealthCheckResult.Degraded("Local Search Tasks Contain Errors.", data: GetErrorData(searchTasks));
             }
             catch (InvalidOperationException ex)
             {
-                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase))
+                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase) || ex.Message.Contains("current state", StringComparison.OrdinalIgnoreCase))
                 {
                     return HealthCheckResult.Healthy();
                 }
@@ -73,7 +50,24 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             }
         }
 
-        private static IReadOnlyDictionary<string, object> GetData(IEnumerable<SearchTaskInfo> objects)
+        protected override IEnumerable<SearchTaskInfo> GetDataForType()
+        {
+            var query = _searchTaskInfoProvider.Get()
+                .WhereNotEmpty(nameof(SearchTaskInfo.SearchTaskErrorMessage));
+            
+            return query.ToList();
+        }
+
+        protected override async Task<IEnumerable<SearchTaskInfo>> GetDataForTypeAsync(CancellationToken cancellationToken = default)
+        {
+            
+            var query = _searchTaskInfoProvider.Get()
+                .WhereNotEmpty(nameof(SearchTaskInfo.SearchTaskErrorMessage));
+
+            return await query.ToListAsync(cancellationToken: cancellationToken);
+        }
+
+        protected override IReadOnlyDictionary<string, object> GetErrorData(IEnumerable<SearchTaskInfo> objects)
         {
             var dictionary = objects.ToDictionary<SearchTaskInfo, string, object>(searchTask => searchTask.SearchTaskID.ToString(), searchTask => searchTask.SearchTaskErrorMessage);
 

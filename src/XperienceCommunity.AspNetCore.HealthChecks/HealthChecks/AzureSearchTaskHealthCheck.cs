@@ -4,6 +4,7 @@ using CMS.Helpers;
 using CMS.Search;
 using CMS.Search.Azure;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using XperienceCommunity.AspNetCore.HealthChecks.Extensions;
 
 namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 {
@@ -11,7 +12,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
     /// Azure Search Task Health Check
     /// </summary>
     /// <remarks>Checks the Azure Search Task for any errors.</remarks>
-    public sealed class AzureSearchTaskHealthCheck : IHealthCheck
+    public sealed class AzureSearchTaskHealthCheck : BaseKenticoHealthCheck<SearchTaskAzureInfo>, IHealthCheck
     {
         private readonly ISearchTaskAzureInfoProvider _searchTaskAzureInfoProvider;
         private readonly IProgressiveCache _cache;
@@ -27,25 +28,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             try
             {
-                // Asynchronously loads data and ensures caching
-                var data = await _cache.LoadAsync(async cacheSettings =>
-                        {
-                            // Calls an async method that loads the required data
-                            var result = await _searchTaskAzureInfoProvider
-                                .Get()
-                                .GetEnumerableTypedResultAsync(CommandBehavior.CloseConnection, true, cancellationToken)
-                                .ConfigureAwait(false);
-
-                            cacheSettings.CacheDependency =
-                                CacheHelper.GetCacheDependency($"{SearchTaskAzureInfo.OBJECT_TYPE}|all");
-
-                            return result;
-                        },
-                        new CacheSettings(TimeSpan.FromMinutes(10).TotalMinutes,
-                            $"apphealth|{SearchTaskAzureInfo.OBJECT_TYPE}"))
-                    .ConfigureAwait(false);
-
-                var searchTasks = data.ToList();
+                var searchTasks = (await GetDataForTypeAsync(cancellationToken)).ToList();
 
                 if (searchTasks.Count == 0)
                 {
@@ -60,13 +43,11 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                     return HealthCheckResult.Healthy();
                 }
 
-                var healthResultData = GetData(errorTasks);
-
-                return HealthCheckResult.Degraded("Azure Search Tasks Contain Errors.", data: healthResultData);
+                return HealthCheckResult.Degraded("Azure Search Tasks Contain Errors.", data: GetErrorData(errorTasks));
             }
             catch (InvalidOperationException ex)
             {
-                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase))
+                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase) || ex.Message.Contains("current state", StringComparison.OrdinalIgnoreCase))
                 {
                     return HealthCheckResult.Healthy();
                 }
@@ -79,7 +60,24 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             }
         }
 
-        private static IReadOnlyDictionary<string, object> GetData(IEnumerable<SearchTaskAzureInfo> objects)
+        protected override IEnumerable<SearchTaskAzureInfo> GetDataForType()
+        {
+            var result = _searchTaskAzureInfoProvider.Get()
+                .WhereNotEmpty(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage));
+
+            return result.ToList();
+        }
+
+        protected override async Task<IEnumerable<SearchTaskAzureInfo>> GetDataForTypeAsync(
+            CancellationToken cancellationToken = default)
+        {
+            var query = _searchTaskAzureInfoProvider.Get()
+                .WhereNotEmpty(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage));
+
+            return await query.ToListAsync(cancellationToken: cancellationToken);
+        }
+
+        protected override IReadOnlyDictionary<string, object> GetErrorData(IEnumerable<SearchTaskAzureInfo> objects)
         {
             var dictionary = objects.ToDictionary<SearchTaskAzureInfo, string, object>(searchTask => searchTask.SearchTaskAzureID.ToString(), searchTask => searchTask.SearchTaskAzureErrorMessage);
 
