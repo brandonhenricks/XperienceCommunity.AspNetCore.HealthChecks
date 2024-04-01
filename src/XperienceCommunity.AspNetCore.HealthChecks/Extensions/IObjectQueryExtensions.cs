@@ -1,4 +1,5 @@
-﻿using CMS.DataEngine;
+﻿using System.Data;
+using CMS.DataEngine;
 
 namespace XperienceCommunity.AspNetCore.HealthChecks.Extensions
 {
@@ -20,12 +21,11 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.Extensions
             ArgumentNullException.ThrowIfNull(query);
 
             cancellationToken.ThrowIfCancellationRequested();
-            
-            var results = await query.GetTypedQuery()
+
+            var results = await query //.GetTypedQuery()
                 //.GetEnumerableResultAsync(CommandBehavior.Default, false, cancellationToken)
-                .GetEnumerableTypedResultAsync(cancellationToken: cancellationToken)
-                //.GetEnumerableTypedResultAsync(commandBehavior: CommandBehavior.CloseConnection, true, cancellationToken: cancellationToken)
-                .ConfigureAwait(false);
+                //.GetEnumerableTypedResultAsync(cancellationToken: cancellationToken);
+                .GetEnumerableTypedResultAsync(commandBehavior: CommandBehavior.SequentialAccess, true, cancellationToken: cancellationToken);
 
 
             return results?.ToList() ?? new List<TObject>(0);
