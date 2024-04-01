@@ -40,9 +40,10 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             {
                 if (ioe.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase)
                     || ioe.Message.Contains("current state", StringComparison.OrdinalIgnoreCase)
-                    || ioe.Message.Contains("reader is closed", StringComparison.OrdinalIgnoreCase))
+                    || ioe.Message.Contains("reader is closed", StringComparison.OrdinalIgnoreCase)
+                    || ioe.Message.Contains("connection is closed", StringComparison.OrdinalIgnoreCase))
                 {
-                    return HealthCheckResult.Healthy();
+                    return HealthCheckResult.Healthy(ioe.Message);
                 }
 
                 return HealthCheckResult.Degraded(ioe.Message, ioe);
@@ -50,7 +51,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
             if (ex is DataClassNotFoundException de)
             {
-                return HealthCheckResult.Healthy();
+                return HealthCheckResult.Healthy(de.Message);
             }
 
             return HealthCheckResult.Unhealthy(ex.Message, ex);

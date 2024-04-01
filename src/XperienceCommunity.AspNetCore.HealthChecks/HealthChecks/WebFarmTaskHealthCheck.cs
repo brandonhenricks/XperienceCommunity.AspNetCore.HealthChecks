@@ -46,7 +46,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             var query = _webFarmTaskInfoProvider
                 .Get()
-                .WhereNotEmpty(nameof(WebFarmServerTaskInfo.ErrorMessage));
+                .WhereNotNull(nameof(WebFarmServerTaskInfo.ErrorMessage));
 
             return query.ToList();
         }
@@ -55,7 +55,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             var query = _webFarmTaskInfoProvider
                 .Get()
-                .WhereNotEmpty(nameof(WebFarmServerTaskInfo.ErrorMessage));
+                .WhereNotNull(nameof(WebFarmServerTaskInfo.ErrorMessage));
 
             return await query.ToListAsync(cancellationToken: cancellationToken);
         }
