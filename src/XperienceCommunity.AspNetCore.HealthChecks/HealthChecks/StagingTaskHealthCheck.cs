@@ -8,7 +8,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 {
-    public sealed class StagingTaskHealthCheck : IHealthCheck
+    public sealed class StagingTaskHealthCheck : BaseKenticoHealthCheck<StagingTaskInfo>, IHealthCheck
     {
         private readonly IStagingTaskInfoProvider _stagingTaskInfoProvider;
         private readonly IProgressiveCache _cache;
@@ -88,24 +88,9 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
                 return HealthCheckResult.Degraded("Failed Staging Tasks Found", null, GetData(syncErrorTasks));
             }
-            catch (InvalidOperationException ex)
-            {
-                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase)
-                    || ex.Message.Contains("current state", StringComparison.OrdinalIgnoreCase)
-                    || ex.Message.Contains("reader is closed", StringComparison.OrdinalIgnoreCase))
-                {
-                    return HealthCheckResult.Healthy();
-                }
-
-                return HealthCheckResult.Degraded(ex.Message, ex);
-            }
-            catch (DataClassNotFoundException)
-            {
-                return HealthCheckResult.Healthy("No Synchronization Tasks");
-            }
             catch (Exception e)
             {
-                return HealthCheckResult.Unhealthy(e.Message, e);
+                return HandleException(e);
             }
         }
 
@@ -114,6 +99,21 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             var dictionary = objects.ToDictionary<SynchronizationInfo, string, object>(searchTask => searchTask.SynchronizationTaskID.ToString(), searchTask => searchTask.SynchronizationErrorMessage);
 
             return new ReadOnlyDictionary<string, object>(dictionary);
+        }
+
+        protected override IEnumerable<StagingTaskInfo> GetDataForType()
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Task<List<StagingTaskInfo>> GetDataForTypeAsync(CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override IReadOnlyDictionary<string, object> GetErrorData(IEnumerable<StagingTaskInfo> objects)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -30,20 +30,9 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                     HealthCheckResult.Unhealthy("There are no sites configured.")
                     : HealthCheckResult.Healthy("Sites have been added to the CMS.");
             }
-            catch (InvalidOperationException ex)
-            {
-                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase)
-                    || ex.Message.Contains("current state", StringComparison.OrdinalIgnoreCase)
-                    || ex.Message.Contains("reader is closed", StringComparison.OrdinalIgnoreCase))
-                {
-                    return HealthCheckResult.Healthy();
-                }
-
-                return HealthCheckResult.Degraded(ex.Message, ex);
-            }
             catch (Exception e)
             {
-                return new HealthCheckResult(HealthStatus.Unhealthy, e.Message, e);
+                return HandleException(e);
             }
         }
 

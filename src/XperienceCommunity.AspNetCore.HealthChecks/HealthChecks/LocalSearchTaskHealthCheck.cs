@@ -35,20 +35,9 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
                 return HealthCheckResult.Degraded("Local Search Tasks Contain Errors.", data: GetErrorData(searchTasks));
             }
-            catch (InvalidOperationException ex)
-            {
-                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase)
-                    || ex.Message.Contains("current state", StringComparison.OrdinalIgnoreCase)
-                    || ex.Message.Contains("reader is closed", StringComparison.OrdinalIgnoreCase))
-                {
-                    return HealthCheckResult.Healthy();
-                }
-
-                return HealthCheckResult.Degraded(ex.Message, ex);
-            }
             catch (Exception e)
             {
-                return HealthCheckResult.Unhealthy(e.Message, e);
+                return HandleException(e);
             }
         }
 

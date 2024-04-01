@@ -69,20 +69,9 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                 
                 return HealthCheckResult.Unhealthy("The current site is not configured correctly.");
             }
-            catch (InvalidOperationException ex)
+            catch (Exception e)
             {
-                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase)
-                    || ex.Message.Contains("current state", StringComparison.OrdinalIgnoreCase)
-                    || ex.Message.Contains("reader is closed", StringComparison.OrdinalIgnoreCase))
-                {
-                    return HealthCheckResult.Healthy();
-                }
-
-                return HealthCheckResult.Degraded(ex.Message, ex);
-            }
-            catch (Exception)
-            {
-                return HealthCheckResult.Unhealthy("The current site is not configured correctly.");
+                return HandleException(e);
             }
         }
 

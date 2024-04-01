@@ -1,4 +1,5 @@
 ﻿using CMS.DataEngine;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 {
@@ -27,5 +28,32 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         /// <param name="objects">The Kentico objects.</param>
         /// <returns>A read-only dictionary containing the error data.</returns>
         protected abstract IReadOnlyDictionary<string, object> GetErrorData(IEnumerable<T> objects);
+
+        /// <summary>
+        /// Gets the health check result.
+        /// </summary>
+        /// <param name="ex"></param>
+        /// <returns></returns>
+        protected static HealthCheckResult HandleException(Exception ex)
+        {
+            if (ex is InvalidOperationException ioe)
+            {
+                if (ioe.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase)
+                    || ioe.Message.Contains("current state", StringComparison.OrdinalIgnoreCase)
+                    || ioe.Message.Contains("reader is closed", StringComparison.OrdinalIgnoreCase))
+                {
+                    return HealthCheckResult.Healthy();
+                }
+
+                return HealthCheckResult.Degraded(ioe.Message, ioe);
+            }
+
+            if (ex is DataClassNotFoundException de)
+            {
+                return HealthCheckResult.Healthy();
+            }
+
+            return HealthCheckResult.Unhealthy(ex.Message, ex);
+        }
     }
 }

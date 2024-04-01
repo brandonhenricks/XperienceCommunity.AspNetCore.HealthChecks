@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.Data;
 using CMS.Helpers;
 using CMS.Search;
 using CMS.Search.Azure;
@@ -45,20 +44,9 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
                 return HealthCheckResult.Degraded("Azure Search Tasks Contain Errors.", data: GetErrorData(errorTasks));
             }
-            catch (InvalidOperationException ex)
-            {
-                if (ex.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase) 
-                    || ex.Message.Contains("current state", StringComparison.OrdinalIgnoreCase)
-                    || ex.Message.Contains("reader is closed", StringComparison.OrdinalIgnoreCase))
-                {
-                    return HealthCheckResult.Healthy();
-                }
-
-                return HealthCheckResult.Degraded(ex.Message, ex);
-            }
             catch (Exception e)
             {
-                return HealthCheckResult.Unhealthy(e.Message, e);
+                return HandleException(e);
             }
         }
 
