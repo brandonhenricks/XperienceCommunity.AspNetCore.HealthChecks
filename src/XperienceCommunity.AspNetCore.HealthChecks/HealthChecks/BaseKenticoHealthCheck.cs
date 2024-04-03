@@ -36,6 +36,11 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         /// <returns></returns>
         protected static HealthCheckResult HandleException(Exception ex)
         {
+            if (ex is OperationCanceledException oe)
+            {
+                return HealthCheckResult.Healthy("Operation Cancelled.");
+            }
+            
             if (ex is InvalidOperationException ioe)
             {
                 if (ioe.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase)

@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using CMS.DataEngine;
 using CMS.Helpers;
 using CMS.Search;
 using CMS.Search.Azure;
@@ -53,7 +54,10 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         protected override IEnumerable<SearchTaskAzureInfo> GetDataForType()
         {
             var result = _searchTaskAzureInfoProvider.Get()
-                .WhereNotEmpty(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage));
+                .Where(new WhereCondition()
+                    .WhereNotNull(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage))
+                    .And()
+                    .WhereNotEmpty(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage)));
 
             return result.ToList();
         }
@@ -62,7 +66,10 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             CancellationToken cancellationToken = default)
         {
             var query = _searchTaskAzureInfoProvider.Get()
-                .WhereNotEmpty(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage));
+                .Where(new WhereCondition()
+                    .WhereNotNull(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage))
+                    .And()
+                    .WhereNotEmpty(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage)));
 
             return await query.ToListAsync(cancellationToken: cancellationToken);
         }
