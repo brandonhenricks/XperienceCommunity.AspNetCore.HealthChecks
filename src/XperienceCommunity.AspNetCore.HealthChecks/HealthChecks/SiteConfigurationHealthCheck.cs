@@ -1,4 +1,5 @@
-﻿using CMS.Helpers;
+﻿using CMS.DataEngine;
+using CMS.Helpers;
 using CMS.SiteProvider;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using XperienceCommunity.AspNetCore.HealthChecks.Extensions;
@@ -22,6 +23,11 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
+            if (!CMSApplication.ApplicationInitialized.HasValue)
+            {
+                return HealthCheckResult.Healthy();
+            }
+            
             try
             {
                 var sites = await GetDataForTypeAsync(cancellationToken);

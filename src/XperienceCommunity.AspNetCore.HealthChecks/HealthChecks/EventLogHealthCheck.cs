@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using CMS.DataEngine;
 using CMS.EventLog;
 using CMS.Helpers;
 using CMS.SiteProvider;
@@ -25,6 +26,11 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context,
             CancellationToken cancellationToken = default)
         {
+            if (!CMSApplication.ApplicationInitialized.HasValue)
+            {
+                return HealthCheckResult.Healthy();
+            }
+            
             try
             {
                 var eventList = await GetDataForTypeAsync(cancellationToken);

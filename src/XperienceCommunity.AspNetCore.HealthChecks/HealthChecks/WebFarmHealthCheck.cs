@@ -1,4 +1,5 @@
-﻿using CMS.WebFarmSync;
+﻿using CMS.DataEngine;
+using CMS.WebFarmSync;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
@@ -11,6 +12,11 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context,
             CancellationToken cancellationToken = default)
         {
+            if (!CMSApplication.ApplicationInitialized.HasValue)
+            {
+                return Task.FromResult(HealthCheckResult.Healthy("Application is not Initialized."));
+            }
+            
             var webFarmServers = WebFarmContext.EnabledServers;
 
             if (webFarmServers == null || webFarmServers.Count == 0)

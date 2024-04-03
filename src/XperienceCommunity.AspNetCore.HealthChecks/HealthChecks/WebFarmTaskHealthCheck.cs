@@ -1,5 +1,7 @@
 ﻿using System.Collections.ObjectModel;
+using CMS.DataEngine;
 using CMS.Helpers;
+using CMS.Search.Azure;
 using CMS.WebFarmSync;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using XperienceCommunity.AspNetCore.HealthChecks.Extensions;
@@ -25,6 +27,11 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             var result = HealthCheckResult.Healthy();
 
+            if (!CMSApplication.ApplicationInitialized.HasValue)
+            {
+                return result;
+            }
+
             try
             {
                 var data = await GetDataForTypeAsync(cancellationToken);
@@ -46,7 +53,10 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             var query = _webFarmTaskInfoProvider
                 .Get()
-                .WhereNotNull(nameof(WebFarmServerTaskInfo.ErrorMessage));
+                .Where(new WhereCondition()
+                    .WhereNotNull(nameof(WebFarmServerTaskInfo.ErrorMessage))
+                    .And()
+                    .WhereNotEmpty(nameof(WebFarmServerTaskInfo.ErrorMessage)));
 
             return query.ToList();
         }
@@ -55,7 +65,11 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             var query = _webFarmTaskInfoProvider
                 .Get()
-                .WhereNotNull(nameof(WebFarmServerTaskInfo.ErrorMessage));
+                .Where(new WhereCondition()
+                    .WhereNotNull(nameof(WebFarmServerTaskInfo.ErrorMessage))
+                    .And()
+                    .WhereNotEmpty(nameof(WebFarmServerTaskInfo.ErrorMessage)));
+
 
             return await query.ToListAsync(cancellationToken: cancellationToken);
         }

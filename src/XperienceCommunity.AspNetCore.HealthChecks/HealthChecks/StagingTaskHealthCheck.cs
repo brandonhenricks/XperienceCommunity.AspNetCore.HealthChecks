@@ -26,6 +26,11 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())
         {
+            if (!CMSApplication.ApplicationInitialized.HasValue)
+            {
+                return HealthCheckResult.Healthy();
+            }
+            
             try
             {
                 var data = await _cache.LoadAsync(async cs =>

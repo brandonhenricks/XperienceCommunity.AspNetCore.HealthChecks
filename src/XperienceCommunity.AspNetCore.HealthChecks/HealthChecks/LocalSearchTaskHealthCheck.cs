@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Data;
+using CMS.DataEngine;
 using CMS.Helpers;
 using CMS.Search;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -24,6 +25,10 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
+            if (!CMSApplication.ApplicationInitialized.HasValue)
+            {
+                return HealthCheckResult.Healthy();
+            }
             try
             {
                 var searchTasks = await GetDataForTypeAsync(cancellationToken);

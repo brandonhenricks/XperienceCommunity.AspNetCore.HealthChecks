@@ -1,4 +1,5 @@
 ﻿using CMS.Base;
+using CMS.DataEngine;
 using CMS.SiteProvider;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -22,6 +23,11 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())
         {
+            if (!CMSApplication.ApplicationInitialized.HasValue)
+            {
+                return HealthCheckResult.Healthy();
+            }
+            
             var currentSite = await _siteInfoProvider.GetAsync(_siteService.CurrentSite.SiteID, cancellationToken);
 
             if (currentSite == null)
