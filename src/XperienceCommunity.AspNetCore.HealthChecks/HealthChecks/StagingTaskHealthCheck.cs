@@ -5,6 +5,7 @@ using CMS.DataEngine;
 using CMS.Helpers;
 using CMS.Synchronization;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using XperienceCommunity.AspNetCore.HealthChecks.Extensions;
 
 namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 {
@@ -33,21 +34,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             
             try
             {
-                var data = await _cache.LoadAsync(async cs =>
-                        {
-                            var results = await _stagingTaskInfoProvider.Get()
-                                .GetEnumerableTypedResultAsync(CommandBehavior.CloseConnection, true, cancellationToken)
-                                .ConfigureAwait(false);
-
-                            cs.CacheDependency = CacheHelper.GetCacheDependency($"{StagingTaskInfo.OBJECT_TYPE}|all");
-
-                            return results;
-                        },
-                        new CacheSettings(TimeSpan.FromMinutes(10).TotalMinutes,
-                            $"apphealth|{StagingTaskInfo.OBJECT_TYPE}"))
-                    .ConfigureAwait(false);
-
-                var stagingTasks = data.ToList();
+                var stagingTasks = await GetDataForTypeAsync(cancellationToken);
 
                 if (stagingTasks.Count == 0)
                 {
@@ -111,9 +98,13 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             throw new NotImplementedException();
         }
 
-        protected override Task<List<StagingTaskInfo>> GetDataForTypeAsync(CancellationToken cancellationToken = default)
+        protected override async Task<List<StagingTaskInfo>> GetDataForTypeAsync(CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            var results = _stagingTaskInfoProvider
+                .Get()
+                .OnSite(_siteService.CurrentSite.SiteID);
+            
+            return await results.ToListAsync(cancellationToken: cancellationToken);
         }
 
         protected override IReadOnlyDictionary<string, object> GetErrorData(IEnumerable<StagingTaskInfo> objects)

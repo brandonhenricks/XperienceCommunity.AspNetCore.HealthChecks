@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using CMS.DataEngine;
 using CMS.Helpers;
-using CMS.Search.Azure;
 using CMS.WebFarmSync;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using XperienceCommunity.AspNetCore.HealthChecks.Extensions;
