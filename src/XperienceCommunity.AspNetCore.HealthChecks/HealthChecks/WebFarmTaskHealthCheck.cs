@@ -1,6 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using CMS.DataEngine;
 using CMS.Helpers;
+using CMS.Search;
+using CMS.SiteProvider;
 using CMS.WebFarmSync;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using XperienceCommunity.AspNetCore.HealthChecks.Extensions;
@@ -13,12 +15,16 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
     public sealed class WebFarmTaskHealthCheck : BaseKenticoHealthCheck<WebFarmServerTaskInfo>, IHealthCheck
     {
         private readonly IWebFarmServerTaskInfoProvider _webFarmTaskInfoProvider;
-        private readonly IProgressiveCache _cache;
 
-        public WebFarmTaskHealthCheck(IWebFarmServerTaskInfoProvider webFarmTaskInfoProvider, IProgressiveCache cache)
+        private static readonly string[] s_columnNames = new[]
+        {
+            nameof(WebFarmServerTaskInfo.ErrorMessage),
+            nameof(WebFarmServerTaskInfo.TaskID)
+        };
+        
+        public WebFarmTaskHealthCheck(IWebFarmServerTaskInfoProvider webFarmTaskInfoProvider)
         {
             _webFarmTaskInfoProvider = webFarmTaskInfoProvider ?? throw new ArgumentNullException(nameof(webFarmTaskInfoProvider));
-            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context,
@@ -54,8 +60,10 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                 .Get()
                 .Where(new WhereCondition()
                     .WhereNotNull(nameof(WebFarmServerTaskInfo.ErrorMessage))
-                    .And()
-                    .WhereNotEmpty(nameof(WebFarmServerTaskInfo.ErrorMessage)));
+                    .Or()
+                    .WhereNotEmpty(nameof(WebFarmServerTaskInfo.ErrorMessage)))
+                .Columns(s_columnNames)
+                .OnSite(SiteContext.CurrentSiteID);
 
             return query.ToList();
         }
@@ -66,9 +74,10 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                 .Get()
                 .Where(new WhereCondition()
                     .WhereNotNull(nameof(WebFarmServerTaskInfo.ErrorMessage))
-                    .And()
-                    .WhereNotEmpty(nameof(WebFarmServerTaskInfo.ErrorMessage)));
-
+                    .Or()
+                    .WhereNotEmpty(nameof(WebFarmServerTaskInfo.ErrorMessage)))
+                .Columns(s_columnNames)
+                .OnSite(SiteContext.CurrentSiteID);
 
             return await query.ToListAsync(cancellationToken: cancellationToken);
         }

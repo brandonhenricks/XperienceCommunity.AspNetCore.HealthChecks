@@ -36,7 +36,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         /// <returns></returns>
         protected static HealthCheckResult HandleException(Exception ex)
         {
-            if (ex is OperationCanceledException oe)
+            if (ex is OperationCanceledException || ex is TaskCanceledException)
             {
                 return HealthCheckResult.Healthy("Operation Cancelled.");
             }
@@ -59,6 +59,11 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                 return HealthCheckResult.Healthy(de.Message);
             }
 
+            if (ex is LinqExpressionCannotBeExecutedException lec)
+            {
+                return HealthCheckResult.Healthy(lec.Message);
+            }
+            
             return HealthCheckResult.Unhealthy(ex.Message, ex);
         }
     }

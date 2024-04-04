@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using CMS.DataEngine;
 using CMS.EventLog;
-using CMS.Helpers;
 using CMS.SiteProvider;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using XperienceCommunity.AspNetCore.HealthChecks.Extensions;
@@ -11,16 +10,24 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
     /// <summary>
     /// Event Log Health Check
     /// </summary>
-    /// <remarks>Investigates the Last 100 Event Log Entries for Errors.</remarks>
+    /// <remarks>Investigates the Last 12 Hours of Event Log Entries for Errors.</remarks>
     public sealed class EventLogHealthCheck : BaseKenticoHealthCheck<EventLogInfo>, IHealthCheck
     {
         private readonly IEventLogInfoProvider _eventLogInfoProvider;
-        private readonly IProgressiveCache _cache;
 
-        public EventLogHealthCheck(IEventLogInfoProvider eventLogInfoProvider, IProgressiveCache cache)
+        private static readonly string[] s_columnNames = new[]
+        {
+            nameof(EventLogInfo.EventType),
+            nameof(EventLogInfo.Source),
+            nameof(EventLogInfo.EventTime),
+            nameof(EventLogInfo.EventID),
+            nameof(EventLogInfo.SiteID),
+            nameof(EventLogInfo.EventDescription)
+        };
+
+        public EventLogHealthCheck(IEventLogInfoProvider eventLogInfoProvider)
         {
             _eventLogInfoProvider = eventLogInfoProvider ?? throw new ArgumentNullException(nameof(eventLogInfoProvider));
-            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context,
@@ -30,15 +37,13 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             {
                 return HealthCheckResult.Healthy();
             }
-            
+
             try
             {
                 var eventList = await GetDataForTypeAsync(cancellationToken);
 
                 var exceptionEvents = eventList
-                    .Where(e => e.EventType == "E"
-                                && e.EventTime >= DateTime.UtcNow.AddHours(-24)
-                                && !e.Source.Equals(nameof(HealthReport), StringComparison.OrdinalIgnoreCase))
+                    .Where(e => !e.Source.Equals(nameof(HealthReport), StringComparison.OrdinalIgnoreCase))
                     .OrderByDescending(x => x.EventID)
                     .ToList();
 
@@ -58,8 +63,13 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         protected override IEnumerable<EventLogInfo> GetDataForType()
         {
             var query = _eventLogInfoProvider.Get()
-                .WhereEquals(nameof(EventLogInfo.EventType), "E")
-                .WhereNotEquals(nameof(EventLogInfo.Source), nameof(HealthReport))
+                .Where(new WhereCondition()
+                    .WhereEquals(nameof(EventLogInfo.EventType), "E")
+                    .And()
+                    .WhereNotEquals(nameof(EventLogInfo.Source), nameof(HealthReport))
+                    .And()
+                    .WhereGreaterOrEquals(nameof(EventLogInfo.EventTime), DateTime.UtcNow.AddHours(-12)))
+                .Columns(s_columnNames)
                 .OnSite(SiteContext.CurrentSiteID);
 
             return query.ToList();
@@ -68,16 +78,21 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         protected override async Task<List<EventLogInfo>> GetDataForTypeAsync(CancellationToken cancellationToken = default)
         {
             var query = _eventLogInfoProvider.Get()
-                .WhereEquals(nameof(EventLogInfo.EventType), "E")
-                .WhereNotEquals(nameof(EventLogInfo.Source), nameof(HealthReport))
-                .OnSite(SiteContext.CurrentSiteID);
+                    .Where(new WhereCondition()
+                        .WhereEquals(nameof(EventLogInfo.EventType), "E")
+                        .And()
+                        .WhereNotEquals(nameof(EventLogInfo.Source), nameof(HealthReport))
+                        .And()
+                        .WhereGreaterOrEquals(nameof(EventLogInfo.EventTime), DateTime.UtcNow.AddHours(-12)))
+                    .Columns(s_columnNames)
+                    .OnSite(SiteContext.CurrentSiteID);
 
             return await query.ToListAsync(cancellationToken: cancellationToken);
         }
 
         protected override IReadOnlyDictionary<string, object> GetErrorData(IEnumerable<EventLogInfo> objects)
         {
-            var dictionary = objects.ToDictionary<EventLogInfo, string, object>(e => e.EventID.ToString(), ev => ev.Exception);
+            var dictionary = objects.ToDictionary<EventLogInfo, string, object>(e => e.EventID.ToString(), ev => ev.EventDescription);
 
             return new ReadOnlyDictionary<string, object>(dictionary);
         }

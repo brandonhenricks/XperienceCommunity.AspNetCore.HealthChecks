@@ -1,7 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using CMS.DataEngine;
+using CMS.EventLog;
 using CMS.Helpers;
 using CMS.Search;
+using CMS.SiteProvider;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using XperienceCommunity.AspNetCore.HealthChecks.Extensions;
 
@@ -14,12 +16,16 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
     public sealed class LocalSearchTaskHealthCheck : BaseKenticoHealthCheck<SearchTaskInfo>, IHealthCheck
     {
         private readonly ISearchTaskInfoProvider _searchTaskInfoProvider;
-        private readonly IProgressiveCache _cache;
 
-        public LocalSearchTaskHealthCheck(ISearchTaskInfoProvider searchTaskInfoProvider, IProgressiveCache cache)
+        private static readonly string[] s_columnNames = new[]
+        {
+            nameof(SearchTaskInfo.SearchTaskErrorMessage),
+            nameof(SearchTaskInfo.SearchTaskID),
+        };
+        
+        public LocalSearchTaskHealthCheck(ISearchTaskInfoProvider searchTaskInfoProvider)
         {
             _searchTaskInfoProvider = searchTaskInfoProvider ?? throw new ArgumentNullException(nameof(searchTaskInfoProvider));
-            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
@@ -48,16 +54,25 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         protected override IEnumerable<SearchTaskInfo> GetDataForType()
         {
             var query = _searchTaskInfoProvider.Get()
-                .WhereNotEmpty(nameof(SearchTaskInfo.SearchTaskErrorMessage));
-            
+                    .Where(new WhereCondition()
+                        .WhereNotNull(nameof(SearchTaskInfo.SearchTaskErrorMessage))
+                        .And()
+                        .WhereNotEmpty(nameof(SearchTaskInfo.SearchTaskErrorMessage)))
+                    .Columns(s_columnNames)
+                    .OnSite(SiteContext.CurrentSiteID);
+
             return query.ToList();
         }
 
         protected override async Task<List<SearchTaskInfo>> GetDataForTypeAsync(CancellationToken cancellationToken = default)
         {
-            
             var query = _searchTaskInfoProvider.Get()
-                .WhereNotEmpty(nameof(SearchTaskInfo.SearchTaskErrorMessage));
+                .Where(new WhereCondition()
+                    .WhereNotNull(nameof(SearchTaskInfo.SearchTaskErrorMessage))
+                    .And()
+                    .WhereNotEmpty(nameof(SearchTaskInfo.SearchTaskErrorMessage)))
+                .Columns(s_columnNames)
+                .OnSite(SiteContext.CurrentSiteID);
 
             return await query.ToListAsync(cancellationToken: cancellationToken);
         }

@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using CMS.DataEngine;
-using CMS.Helpers;
 using CMS.Search;
 using CMS.Search.Azure;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -15,12 +14,16 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
     public sealed class AzureSearchTaskHealthCheck : BaseKenticoHealthCheck<SearchTaskAzureInfo>, IHealthCheck
     {
         private readonly ISearchTaskAzureInfoProvider _searchTaskAzureInfoProvider;
-        private readonly IProgressiveCache _cache;
 
-        public AzureSearchTaskHealthCheck(ISearchTaskAzureInfoProvider searchTaskAzureInfoProvider, IProgressiveCache cache)
+        private static readonly string[] s_columnNames = new[]
+        {
+            nameof(SearchTaskAzureInfo.SearchTaskAzureID), 
+            nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage)
+        };
+
+        public AzureSearchTaskHealthCheck(ISearchTaskAzureInfoProvider searchTaskAzureInfoProvider)
         {
             _searchTaskAzureInfoProvider = searchTaskAzureInfoProvider ?? throw new ArgumentNullException(nameof(searchTaskAzureInfoProvider));
-            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context,
@@ -59,10 +62,8 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         protected override IEnumerable<SearchTaskAzureInfo> GetDataForType()
         {
             var result = _searchTaskAzureInfoProvider.Get()
-                .Where(new WhereCondition()
-                    .WhereNotNull(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage))
-                    .And()
-                    .WhereNotEmpty(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage)));
+                .Columns(s_columnNames)
+                .WhereNotNull(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage));
 
             return result.ToList();
         }
@@ -71,10 +72,8 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             CancellationToken cancellationToken = default)
         {
             var query = _searchTaskAzureInfoProvider.Get()
-                .Where(new WhereCondition()
-                    .WhereNotNull(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage))
-                    .And()
-                    .WhereNotEmpty(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage)));
+                .Columns(s_columnNames)
+                .WhereNotNull(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage));
 
             return await query.ToListAsync(cancellationToken: cancellationToken);
         }

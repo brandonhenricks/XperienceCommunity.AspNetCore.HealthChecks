@@ -13,12 +13,10 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
     public sealed class SiteConfigurationHealthCheck : BaseKenticoHealthCheck<SiteInfo>, IHealthCheck
     {
         private readonly ISiteInfoProvider _siteInfoProvider;
-        private readonly IProgressiveCache _cache;
 
-        public SiteConfigurationHealthCheck(ISiteInfoProvider siteInfoProvider, IProgressiveCache cache)
+        public SiteConfigurationHealthCheck(ISiteInfoProvider siteInfoProvider)
         {
             _siteInfoProvider = siteInfoProvider ?? throw new ArgumentNullException(nameof(siteInfoProvider));
-            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
