@@ -1,4 +1,5 @@
-﻿using CMS.DataEngine;
+﻿using System.Collections.ObjectModel;
+using CMS.DataEngine;
 using CMS.WebFarmSync;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
@@ -28,12 +29,20 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             {
                 if (server.Status == WebFarmServerStatusEnum.NotResponding)
                 {
-                    return Task.FromResult(HealthCheckResult.Degraded($"Server {server.ServerName} is not responding."));
+                    return Task.FromResult(HealthCheckResult.Degraded($"Server {server.ServerName} is not responding.", null, GetData(webFarmServers)));
                 }
             }
 
             // If all servers are running, return a healthy status
-            return Task.FromResult(HealthCheckResult.Healthy("All servers in the web farm are running."));
+            return Task.FromResult(HealthCheckResult.Healthy("All servers in the web farm are running.", GetData(webFarmServers)));
+        }
+
+
+        private static IReadOnlyDictionary<string, object> GetData(IEnumerable<WebFarmServerInfo> objects)
+        {
+            var dictionary = objects.ToDictionary<WebFarmServerInfo, string, object>(webfarm => webfarm.ServerName, webfarm => webfarm.Status.ToString());
+
+            return new ReadOnlyDictionary<string, object>(dictionary);
         }
     }
 }
