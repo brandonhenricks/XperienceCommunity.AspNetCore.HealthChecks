@@ -74,6 +74,10 @@ app.UseEndpoints(endpoints =>
 
 ## Health Checks
 
+### Application Initialized Health Check
+
+The `ApplicationInitializedHealthCheck` class is an implementation of the `IHealthCheck` interface. It is used to perform a health check on the application initialization. 
+
 ### Azure Search Task Health Check
 
 The `AzureSearchTaskHealthCheck` is a health check implementation that checks the Azure Search Task for any errors.
