@@ -34,6 +34,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks
 
             return services
                 .AddHealthChecks()
+                .AddCheck<ApplicationInitializedHealthCheck>("Application Initialized Health Check", tags: s_tags)
                 .AddCheck<SiteConfigurationHealthCheck>("Site Configuration Health Check", tags: s_tags)
                 .AddCheck<SitePresentationHealthCheck>("Site Presentation Url Health Check", tags: s_tags)
                 //.AddCheck<StagingTaskHealthCheck>("Staging Task Health Check", tags: s_tags)
