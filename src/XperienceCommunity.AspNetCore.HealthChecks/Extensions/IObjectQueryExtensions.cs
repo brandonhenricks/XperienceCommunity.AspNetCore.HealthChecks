@@ -23,11 +23,29 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.Extensions
             ArgumentNullException.ThrowIfNull(query);
 
             cancellationToken.ThrowIfCancellationRequested();
+            
+            try
+            {
 
-            var results = await query
-                .GetEnumerableTypedResultAsync(commandBehavior: CommandBehavior.SequentialAccess, true, cancellationToken: cancellationToken);
+                var results = await query
+                    .GetEnumerableTypedResultAsync(commandBehavior: CommandBehavior.SequentialAccess, true,
+                        cancellationToken: cancellationToken);
 
-            return results?.ToList() ?? new List<TObject>(0);
+                return results?.ToList() ?? new List<TObject>(0);
+            }
+            catch (InvalidOperationException)
+            {
+
+                var results = await query
+                    .GetEnumerableTypedResultAsync(commandBehavior: CommandBehavior.CloseConnection, true,
+                        cancellationToken: cancellationToken);
+
+                return results?.ToList() ?? new List<TObject>(0);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         /// <summary>

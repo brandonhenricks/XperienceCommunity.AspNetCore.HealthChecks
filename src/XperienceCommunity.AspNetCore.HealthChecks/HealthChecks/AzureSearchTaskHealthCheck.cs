@@ -18,7 +18,9 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         private static readonly string[] s_columnNames = new[]
         {
             nameof(SearchTaskAzureInfo.SearchTaskAzureID), 
-            nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage)
+            nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage),
+            nameof(SearchTaskAzureInfo.SearchTaskAzureType),
+            nameof(SearchTaskAzureInfo.SearchTaskAzureAdditionalData),
         };
 
         public AzureSearchTaskHealthCheck(ISearchTaskAzureInfoProvider searchTaskAzureInfoProvider)
@@ -63,7 +65,10 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             var result = _searchTaskAzureInfoProvider.Get()
                 .Columns(s_columnNames)
-                .WhereNotNull(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage));
+                .Where(new WhereCondition()
+                    .WhereNotNull(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage))
+                    .And()
+                    .WhereNotEmpty(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage)));
 
             return result.ToList();
         }
@@ -73,7 +78,10 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             var query = _searchTaskAzureInfoProvider.Get()
                 .Columns(s_columnNames)
-                .WhereNotNull(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage));
+                .Where(new WhereCondition()
+                    .WhereNotNull(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage))
+                    .And()
+                    .WhereNotEmpty(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage)));
 
             return await query.ToListAsync(cancellationToken: cancellationToken);
         }

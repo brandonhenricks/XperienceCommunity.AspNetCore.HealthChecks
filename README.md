@@ -98,7 +98,7 @@ The `SiteConfigurationHealthCheck` class is an implementation of the `IHealthChe
 
 The `SitePresentationHealthCheck` class is an implementation of the `IHealthCheck` interface. It is responsible for checking the health of the site presentation configuration in an ASP.NET Core application.
 
-### SitePresentationHealthCheck
+### StagingTaskHealthCheck
 
 The `StagingTaskHealthCheck` class is an implementation of the `IHealthCheck` interface. It is responsible for checking the health of staging tasks in a Kentico Xperience CMS application.
 
