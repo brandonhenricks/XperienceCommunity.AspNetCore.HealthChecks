@@ -15,15 +15,15 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
     {
         private readonly IEventLogInfoProvider _eventLogInfoProvider;
 
-        private static readonly string[] s_columnNames = new[]
-        {
+        private static readonly string[] s_columnNames =
+        [
             nameof(EventLogInfo.EventType),
             nameof(EventLogInfo.Source),
             nameof(EventLogInfo.EventTime),
             nameof(EventLogInfo.EventID),
             nameof(EventLogInfo.SiteID),
             nameof(EventLogInfo.EventDescription)
-        };
+        ];
 
         public EventLogHealthCheck(IEventLogInfoProvider eventLogInfoProvider)
         {

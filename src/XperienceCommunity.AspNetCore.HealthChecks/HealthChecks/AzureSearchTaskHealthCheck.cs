@@ -15,13 +15,13 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
     {
         private readonly ISearchTaskAzureInfoProvider _searchTaskAzureInfoProvider;
 
-        private static readonly string[] s_columnNames = new[]
-        {
+        private static readonly string[] s_columnNames =
+        [
             nameof(SearchTaskAzureInfo.SearchTaskAzureID), 
             nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage),
             nameof(SearchTaskAzureInfo.SearchTaskAzureType),
-            nameof(SearchTaskAzureInfo.SearchTaskAzureAdditionalData),
-        };
+            nameof(SearchTaskAzureInfo.SearchTaskAzureAdditionalData)
+        ];
 
         public AzureSearchTaskHealthCheck(ISearchTaskAzureInfoProvider searchTaskAzureInfoProvider)
         {

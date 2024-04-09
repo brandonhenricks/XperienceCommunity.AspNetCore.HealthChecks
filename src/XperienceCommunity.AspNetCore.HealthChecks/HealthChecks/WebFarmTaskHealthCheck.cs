@@ -14,11 +14,11 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
     {
         private readonly IWebFarmServerTaskInfoProvider _webFarmTaskInfoProvider;
 
-        private static readonly string[] s_columnNames = new[]
-        {
+        private static readonly string[] s_columnNames =
+        [
             nameof(WebFarmServerTaskInfo.ErrorMessage),
             nameof(WebFarmServerTaskInfo.TaskID)
-        };
+        ];
         
         public WebFarmTaskHealthCheck(IWebFarmServerTaskInfoProvider webFarmTaskInfoProvider)
         {

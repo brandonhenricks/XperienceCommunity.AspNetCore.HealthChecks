@@ -15,11 +15,11 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
     {
         private readonly ISearchTaskInfoProvider _searchTaskInfoProvider;
 
-        private static readonly string[] s_columnNames = new[]
-        {
+        private static readonly string[] s_columnNames =
+        [
             nameof(SearchTaskInfo.SearchTaskErrorMessage),
-            nameof(SearchTaskInfo.SearchTaskID),
-        };
+            nameof(SearchTaskInfo.SearchTaskID)
+        ];
         
         public LocalSearchTaskHealthCheck(ISearchTaskInfoProvider searchTaskInfoProvider)
         {
