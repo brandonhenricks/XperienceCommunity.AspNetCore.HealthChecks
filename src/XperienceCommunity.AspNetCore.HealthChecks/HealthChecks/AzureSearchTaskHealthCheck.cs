@@ -48,12 +48,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                 var errorTasks = searchTasks
                     .Where(searchTask => !string.IsNullOrEmpty(searchTask.SearchTaskAzureErrorMessage)).ToList();
 
-                if (errorTasks.Count == 0)
-                {
-                    return HealthCheckResult.Healthy();
-                }
-
-                return HealthCheckResult.Degraded("Azure Search Tasks Contain Errors.", data: GetErrorData(errorTasks));
+                return errorTasks.Count == 0 ? HealthCheckResult.Healthy() : HealthCheckResult.Degraded("Azure Search Tasks Contain Errors.", data: GetErrorData(errorTasks));
             }
             catch (Exception e)
             {

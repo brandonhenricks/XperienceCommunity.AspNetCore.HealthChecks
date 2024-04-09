@@ -47,12 +47,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                     .OrderByDescending(x => x.EventID)
                     .ToList();
 
-                if (exceptionEvents.Count >= 25)
-                {
-                    return HealthCheckResult.Degraded($"There are {exceptionEvents.Count} errors in the event log.", null, GetErrorData(exceptionEvents));
-                }
-
-                return HealthCheckResult.Healthy();
+                return exceptionEvents.Count >= 25 ? HealthCheckResult.Degraded($"There are {exceptionEvents.Count} errors in the event log.", null, GetErrorData(exceptionEvents)) : HealthCheckResult.Healthy();
             }
             catch (Exception e)
             {

@@ -36,35 +36,24 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         /// <returns></returns>
         protected static HealthCheckResult HandleException(Exception ex)
         {
-            if (ex is OperationCanceledException || ex is TaskCanceledException)
+            if (ex is OperationCanceledException or TaskCanceledException)
             {
                 return HealthCheckResult.Healthy("Operation Cancelled.");
             }
-            
-            if (ex is InvalidOperationException ioe)
-            {
-                if (ioe.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase)
-                    || ioe.Message.Contains("current state", StringComparison.OrdinalIgnoreCase)
-                    || ioe.Message.Contains("reader is closed", StringComparison.OrdinalIgnoreCase)
-                    || ioe.Message.Contains("connection is closed", StringComparison.OrdinalIgnoreCase))
-                {
-                    return HealthCheckResult.Healthy(ioe.Message);
-                }
 
-                return HealthCheckResult.Degraded(ioe.Message, ioe);
-            }
-
-            if (ex is DataClassNotFoundException de)
+            return ex switch
             {
-                return HealthCheckResult.Healthy(de.Message);
-            }
-
-            if (ex is LinqExpressionCannotBeExecutedException lec)
-            {
-                return HealthCheckResult.Healthy(lec.Message);
-            }
-            
-            return HealthCheckResult.Unhealthy(ex.Message, ex);
+                InvalidOperationException ioe when
+                    ioe.Message.Contains("open DataReader", StringComparison.OrdinalIgnoreCase) ||
+                    ioe.Message.Contains("current state", StringComparison.OrdinalIgnoreCase) ||
+                    ioe.Message.Contains("reader is closed", StringComparison.OrdinalIgnoreCase) ||
+                    ioe.Message.Contains("connection is closed", StringComparison.OrdinalIgnoreCase) =>
+                    HealthCheckResult.Healthy(ioe.Message),
+                InvalidOperationException ioe => HealthCheckResult.Degraded(ioe.Message, ioe),
+                DataClassNotFoundException de => HealthCheckResult.Healthy(de.Message),
+                LinqExpressionCannotBeExecutedException lec => HealthCheckResult.Healthy(lec.Message),
+                _ => HealthCheckResult.Unhealthy(ex.Message, ex)
+            };
         }
     }
 }

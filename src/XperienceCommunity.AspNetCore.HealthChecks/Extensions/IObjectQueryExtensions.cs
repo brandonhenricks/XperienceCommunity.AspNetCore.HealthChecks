@@ -23,10 +23,9 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.Extensions
             ArgumentNullException.ThrowIfNull(query);
 
             cancellationToken.ThrowIfCancellationRequested();
-            
+
             try
             {
-
                 var results = await query
                     .GetEnumerableTypedResultAsync(commandBehavior: CommandBehavior.SequentialAccess, true,
                         cancellationToken: cancellationToken);
@@ -35,7 +34,6 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.Extensions
             }
             catch (InvalidOperationException)
             {
-
                 var results = await query
                     .GetEnumerableTypedResultAsync(commandBehavior: CommandBehavior.CloseConnection, true,
                         cancellationToken: cancellationToken);
@@ -81,6 +79,5 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.Extensions
                                .Or()
                                .WhereNotEmpty(columnName);
         }
-
     }
 }

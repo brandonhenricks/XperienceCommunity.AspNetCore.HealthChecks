@@ -1,5 +1,4 @@
 ﻿using CMS.DataEngine;
-using CMS.Helpers;
 using CMS.SiteProvider;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using XperienceCommunity.AspNetCore.HealthChecks.Extensions;

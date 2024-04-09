@@ -1,7 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using CMS.DataEngine;
-using CMS.EventLog;
-using CMS.Helpers;
 using CMS.Search;
 using CMS.SiteProvider;
 using Microsoft.Extensions.Diagnostics.HealthChecks;

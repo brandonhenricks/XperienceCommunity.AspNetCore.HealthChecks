@@ -73,12 +73,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                                 !string.IsNullOrWhiteSpace(s.SynchronizationErrorMessage))
                     .ToList();
 
-                if (syncErrorTasks.Count == 0)
-                {
-                    return HealthCheckResult.Healthy("No Synchronization Tasks Contain Errors.");
-                }
-
-                return HealthCheckResult.Degraded("Failed Staging Tasks Found", null, GetData(syncErrorTasks));
+                return syncErrorTasks.Count == 0 ? HealthCheckResult.Healthy("No Synchronization Tasks Contain Errors.") : HealthCheckResult.Degraded("Failed Staging Tasks Found", null, GetData(syncErrorTasks));
             }
             catch (Exception e)
             {
