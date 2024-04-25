@@ -72,7 +72,9 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
         protected override async Task<List<EventLogInfo>> GetDataForTypeAsync(CancellationToken cancellationToken = default)
         {
-            var query = _eventLogInfoProvider.Get()
+            using (new CMSConnectionScope(true))
+            {
+                var query = _eventLogInfoProvider.Get()
                     .Where(new WhereCondition()
                         .WhereEquals(nameof(EventLogInfo.EventType), "E")
                         .And()
@@ -82,7 +84,8 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                     .Columns(s_columnNames)
                     .OnSite(SiteContext.CurrentSiteID);
 
-            return await query.ToListAsync(cancellationToken: cancellationToken);
+                return await query.ToListAsync(cancellationToken: cancellationToken);
+            }
         }
 
         protected override IReadOnlyDictionary<string, object> GetErrorData(IEnumerable<EventLogInfo> objects)

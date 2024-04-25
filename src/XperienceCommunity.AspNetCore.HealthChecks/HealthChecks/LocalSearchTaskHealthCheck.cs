@@ -64,15 +64,18 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
         protected override async Task<List<SearchTaskInfo>> GetDataForTypeAsync(CancellationToken cancellationToken = default)
         {
-            var query = _searchTaskInfoProvider.Get()
-                .Where(new WhereCondition()
-                    .WhereNotNull(nameof(SearchTaskInfo.SearchTaskErrorMessage))
-                    .And()
-                    .WhereNotEmpty(nameof(SearchTaskInfo.SearchTaskErrorMessage)))
-                .Columns(s_columnNames)
-                .OnSite(SiteContext.CurrentSiteID);
+            using (new CMSConnectionScope(true))
+            {
+                var query = _searchTaskInfoProvider.Get()
+                    .Where(new WhereCondition()
+                        .WhereNotNull(nameof(SearchTaskInfo.SearchTaskErrorMessage))
+                        .And()
+                        .WhereNotEmpty(nameof(SearchTaskInfo.SearchTaskErrorMessage)))
+                    .Columns(s_columnNames)
+                    .OnSite(SiteContext.CurrentSiteID);
 
-            return await query.ToListAsync(cancellationToken: cancellationToken);
+                return await query.ToListAsync(cancellationToken: cancellationToken);
+            }
         }
 
         protected override IReadOnlyDictionary<string, object> GetErrorData(IEnumerable<SearchTaskInfo> objects)

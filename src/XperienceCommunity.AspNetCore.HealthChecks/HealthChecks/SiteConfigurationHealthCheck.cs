@@ -48,8 +48,11 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
         protected override async Task<List<SiteInfo>> GetDataForTypeAsync(CancellationToken cancellationToken = default)
         {
-            var query = _siteInfoProvider.Get();
-            return await query.ToListAsync(cancellationToken: cancellationToken);
+            using (new CMSConnectionScope(true))
+            {
+                var query = _siteInfoProvider.Get();
+                return await query.ToListAsync(cancellationToken: cancellationToken);
+            }
         }
 
         protected override IReadOnlyDictionary<string, object> GetErrorData(IEnumerable<SiteInfo> objects)

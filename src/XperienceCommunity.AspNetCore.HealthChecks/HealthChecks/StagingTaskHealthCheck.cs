@@ -95,11 +95,14 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
         protected override async Task<List<StagingTaskInfo>> GetDataForTypeAsync(CancellationToken cancellationToken = default)
         {
-            var results = _stagingTaskInfoProvider
-                .Get()
-                .OnSite(_siteService.CurrentSite.SiteID);
-            
-            return await results.ToListAsync(cancellationToken: cancellationToken);
+            using (new CMSConnectionScope(true))
+            {
+                var results = _stagingTaskInfoProvider
+                    .Get()
+                    .OnSite(_siteService.CurrentSite.SiteID);
+
+                return await results.ToListAsync(cancellationToken: cancellationToken);
+            }
         }
 
         protected override IReadOnlyDictionary<string, object> GetErrorData(IEnumerable<StagingTaskInfo> objects)

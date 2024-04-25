@@ -27,57 +27,61 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             {
                 return HealthCheckResult.Healthy();
             }
-            
-            var currentSite = await _siteInfoProvider.GetAsync(_siteService.CurrentSite.SiteID, cancellationToken);
 
-            if (currentSite == null)
+            using (new CMSConnectionScope(true))
             {
-                return HealthCheckResult.Unhealthy("The current site is not configured.");
-            }
+                var currentSite = await _siteInfoProvider.GetAsync(_siteService.CurrentSite.SiteID, cancellationToken);
 
-            try
-            {
-                var request = _httpContextAccessor.HttpContext.Request;
-
-                var currentSitePresentationUri = new Uri(currentSite.SitePresentationURL);
-
-                var requestUri = new Uri(request.Scheme + "://" + request.Host.Value);
-
-                if (currentSitePresentationUri.Host == requestUri.Host && currentSitePresentationUri.Scheme == requestUri.Scheme)
+                if (currentSite == null)
                 {
-                    return HealthCheckResult.Healthy("The current site is configured correctly.");
+                    return HealthCheckResult.Unhealthy("The current site is not configured.");
                 }
 
-                var domainAliasList = currentSite.LiveSiteAliases.ToList();
-
-                foreach (var domainAlias in domainAliasList)
+                try
                 {
-                    var domainAliasUri = new Uri(domainAlias.SiteDomainPresentationUrl);
+                    var request = _httpContextAccessor.HttpContext.Request;
 
-                    if (domainAliasUri.Host == requestUri.Host && domainAliasUri.Scheme == requestUri.Scheme)
+                    var currentSitePresentationUri = new Uri(currentSite.SitePresentationURL);
+
+                    var requestUri = new Uri(request.Scheme + "://" + request.Host.Value);
+
+                    if (currentSitePresentationUri.Host == requestUri.Host &&
+                        currentSitePresentationUri.Scheme == requestUri.Scheme)
                     {
                         return HealthCheckResult.Healthy("The current site is configured correctly.");
                     }
-                    
-                }
-                
-                var siteDomainAliasList = currentSite.AdministrationAliases.ToList();
 
-                foreach (var siteDomainAliasInfo in siteDomainAliasList)
-                {
-                    var domainAliasUri = new Uri(siteDomainAliasInfo.SiteDomainPresentationUrl);
+                    var domainAliasList = currentSite.LiveSiteAliases.ToList();
 
-                    if (domainAliasUri.Host == requestUri.Host && domainAliasUri.Scheme == requestUri.Scheme)
+                    foreach (var domainAlias in domainAliasList)
                     {
-                        return HealthCheckResult.Healthy("The current site is configured correctly.");
+                        var domainAliasUri = new Uri(domainAlias.SiteDomainPresentationUrl);
+
+                        if (domainAliasUri.Host == requestUri.Host && domainAliasUri.Scheme == requestUri.Scheme)
+                        {
+                            return HealthCheckResult.Healthy("The current site is configured correctly.");
+                        }
+
                     }
+
+                    var siteDomainAliasList = currentSite.AdministrationAliases.ToList();
+
+                    foreach (var siteDomainAliasInfo in siteDomainAliasList)
+                    {
+                        var domainAliasUri = new Uri(siteDomainAliasInfo.SiteDomainPresentationUrl);
+
+                        if (domainAliasUri.Host == requestUri.Host && domainAliasUri.Scheme == requestUri.Scheme)
+                        {
+                            return HealthCheckResult.Healthy("The current site is configured correctly.");
+                        }
+                    }
+
+                    return HealthCheckResult.Unhealthy("The current site is not configured correctly.");
                 }
-                
-                return HealthCheckResult.Unhealthy("The current site is not configured correctly.");
-            }
-            catch (Exception e)
-            {
-                return HandleException(e);
+                catch (Exception e)
+                {
+                    return HandleException(e);
+                }
             }
         }
 

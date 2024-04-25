@@ -68,16 +68,19 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
         protected override async Task<List<WebFarmServerTaskInfo>> GetDataForTypeAsync(CancellationToken cancellationToken = default)
         {
-            var query = _webFarmTaskInfoProvider
-                .Get()
-                .Where(new WhereCondition()
-                    .WhereNotNull(nameof(WebFarmServerTaskInfo.ErrorMessage))
-                    .Or()
-                    .WhereNotEmpty(nameof(WebFarmServerTaskInfo.ErrorMessage)))
-                .Columns(s_columnNames)
-                .OnSite(SiteContext.CurrentSiteID);
+            using (new CMSConnectionScope(true))
+            {
+                var query = _webFarmTaskInfoProvider
+                    .Get()
+                    .Where(new WhereCondition()
+                        .WhereNotNull(nameof(WebFarmServerTaskInfo.ErrorMessage))
+                        .Or()
+                        .WhereNotEmpty(nameof(WebFarmServerTaskInfo.ErrorMessage)))
+                    .Columns(s_columnNames)
+                    .OnSite(SiteContext.CurrentSiteID);
 
-            return await query.ToListAsync(cancellationToken: cancellationToken);
+                return await query.ToListAsync(cancellationToken: cancellationToken);
+            }
         }
 
         protected override IReadOnlyDictionary<string, object> GetErrorData(IEnumerable<WebFarmServerTaskInfo> objects)
