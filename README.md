@@ -25,13 +25,25 @@ This package provides a set of Kentico-specific health checks that you can easil
 
 3. In your `Startup.cs` file (or wherever you configure your services), use the `AddKenticoHealthChecks` extension method on your `IServiceCollection` instance. Here's an example:
 
-#### Add all Kentico Health Checks
+#### Add all Kentico Health Checks and Microsoft Health Checks
 This method will add all the Kentico Health checks to your application.
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
     services.AddKenticoHealthChecks();
+}
+```
+
+#### Add all Kentico Health Checks
+This method will add all the Kentico Health checks to your application.
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    services
+    .AddHealthChecks()
+    .AddKenticoHealthChecks();
 }
 ```
 
@@ -59,16 +71,33 @@ public void Configure(IApplicationBuilder app)
 
 #### Endpoint Registration
 
-In your `Startup.cs` file (or wherever you configure your application), use the `MapHealthChecks` extension method on your `IEndpointRouteBuilder` instance. This registers the health checks as an endpoint.Here's an example:
+In your `Startup.cs` file (or wherever you configure your application), use the `MapHealthChecks` extension method on your `IEndpointRouteBuilder` instance. This registers the health checks as an endpoint.
+Here's an example:
 
 ```csharp
 app.UseEndpoints(endpoints =>
 {
-    var defaultCulture = CultureInfo.GetCultureInfo("en-US");
-
-    endpoints.Kentico().MapRoutes();
-
     endpoints.MapHealthChecks("/kentico-health");
+}
+```
+
+#### Endpoint Registration with Custom Writer
+
+In your `Startup.cs` file (or wherever you configure your application), use the `MapHealthChecks` extension method on your `IEndpointRouteBuilder` instance. This registers the health checks as an endpoint.
+This allows you to customize your HealthCheckOptions class, and specifiy a custom Response Writer.
+
+Here's an example:
+
+```csharp
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapHealthChecks("/kentico-health",
+        new HealthCheckOptions()
+        {
+            AllowCachingResponses = true,
+            ResponseWriter = async (context, report) =>
+                await HealthCheckResponseWriter.WriteResponse(context, report)
+        });
 }
 ```
 
@@ -131,6 +160,6 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 ## Acknowledgments
 
 * Chris Blaylock
-* Mike Wills
+* [Mike Wills](https://github.com/heywills)
 * Jordan Walters
 * Alan Abair

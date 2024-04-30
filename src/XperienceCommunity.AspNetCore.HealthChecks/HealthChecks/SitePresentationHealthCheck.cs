@@ -25,7 +25,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             if (!CMSApplication.ApplicationInitialized.HasValue)
             {
-                return HealthCheckResult.Healthy();
+                return HealthCheckResult.Healthy("Site Presentation Url Has Been Configured.");
             }
 
             using (new CMSConnectionScope(true))

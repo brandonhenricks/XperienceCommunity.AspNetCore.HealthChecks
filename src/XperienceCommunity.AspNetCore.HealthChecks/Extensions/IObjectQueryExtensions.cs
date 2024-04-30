@@ -27,6 +27,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.Extensions
             try
             {
                 var results = await query
+                    .GetTypedQuery()
                     .GetEnumerableTypedResultAsync(commandBehavior: CommandBehavior.Default, true,
                         cancellationToken: cancellationToken);
 
@@ -35,6 +36,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.Extensions
             catch (InvalidOperationException)
             {
                 var results = await query
+                    .GetTypedQuery()
                     .GetEnumerableTypedResultAsync(commandBehavior: CommandBehavior.CloseConnection, true,
                         cancellationToken: cancellationToken);
 
@@ -62,10 +64,12 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.Extensions
             ArgumentNullException.ThrowIfNull(query);
 
             cancellationToken.ThrowIfCancellationRequested();
+            
             try
             {
 
                 var results = await query
+                    .GetTypedQuery()
                     .GetEnumerableTypedResultAsync(commandBehavior: CommandBehavior.Default, true, cancellationToken: cancellationToken);
 
                 return results?.FirstOrDefault() ?? default;
@@ -73,6 +77,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.Extensions
             catch (InvalidOperationException)
             {
                 var results = await query
+                    .GetTypedQuery()
                     .GetEnumerableTypedResultAsync(commandBehavior: CommandBehavior.CloseConnection, true,
                         cancellationToken: cancellationToken);
 
