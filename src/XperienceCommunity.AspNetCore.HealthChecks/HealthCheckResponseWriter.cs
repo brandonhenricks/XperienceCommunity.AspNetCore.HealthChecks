@@ -17,7 +17,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks
         /// <param name="context"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        private static Task WriteResponse(HttpContext context, HealthReport result)
+        public static Task WriteResponse(HttpContext context, HealthReport result)
         {
             context.Response.ContentType = "application/json; charset=utf-8";
 
