@@ -27,7 +27,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.Extensions
             try
             {
                 var results = await query
-                    .GetEnumerableTypedResultAsync(commandBehavior: CommandBehavior.SequentialAccess, true,
+                    .GetEnumerableTypedResultAsync(commandBehavior: CommandBehavior.Default, true,
                         cancellationToken: cancellationToken);
 
                 return results?.ToList() ?? new List<TObject>(0);
@@ -66,7 +66,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.Extensions
             {
 
                 var results = await query
-                    .GetEnumerableTypedResultAsync(commandBehavior: CommandBehavior.SequentialAccess, true, cancellationToken: cancellationToken);
+                    .GetEnumerableTypedResultAsync(commandBehavior: CommandBehavior.Default, true, cancellationToken: cancellationToken);
 
                 return results?.FirstOrDefault() ?? default;
             }
