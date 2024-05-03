@@ -24,21 +24,28 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                 return HealthCheckResult.Healthy("Application is not Initialized.");
             }
 
-            var currentTimePlusTwoHours = DateTime.Now.AddHours(2);
-
-            var data = await GetDataForTypeAsync(cancellationToken);
-
-            var filtered = data.Where(email =>
-                    email.EmailLastSendAttempt < currentTimePlusTwoHours &&
-                    email.EmailStatus == EmailStatusEnum.Waiting)
-                .ToList();
-
-            if (filtered.Count > 0)
+            try
             {
-                return HealthCheckResult.Degraded("Email Items are not being sent.", data: GetErrorData(filtered));
-            }
+                var currentTimePlusTwoHours = DateTime.UtcNow.AddHours(-1);
 
-            return HealthCheckResult.Healthy("Email Items Appear to be Healthy.");
+                var data = await GetDataForTypeAsync(cancellationToken);
+
+                var filtered = data.Where(email =>
+                        email.EmailLastSendAttempt < currentTimePlusTwoHours &&
+                        email.EmailStatus == EmailStatusEnum.Waiting)
+                    .ToList();
+
+                if (filtered.Count > 0)
+                {
+                    return HealthCheckResult.Degraded("Email Items are not being sent.", data: GetErrorData(filtered));
+                }
+
+                return HealthCheckResult.Healthy("Email Items Appear to be Healthy.");
+            }
+            catch (Exception e)
+            {
+                return HandleException(e);
+            }
         }
 
         protected override IEnumerable<EmailInfo> GetDataForType()
