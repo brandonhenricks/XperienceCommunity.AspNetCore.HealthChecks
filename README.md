@@ -95,8 +95,7 @@ app.UseEndpoints(endpoints =>
         new HealthCheckOptions()
         {
             AllowCachingResponses = true,
-            ResponseWriter = async (context, report) =>
-                await HealthCheckResponseWriter.WriteResponse(context, report)
+            ResponseWriter = HealthCheckResponseWriter.WriteResponse
         });
 }
 ```
@@ -110,6 +109,10 @@ The `ApplicationInitializedHealthCheck` class is an implementation of the `IHeal
 ### Azure Search Task Health Check
 
 The `AzureSearchTaskHealthCheck` is a health check implementation that checks the Azure Search Task for any errors.
+
+### Email Health Check
+
+The `EmailHealthCheck` class is an implementation of the `IHealthCheck` interface. It is used to perform a health check on the email service in the application.
 
 ### EventLogHealthCheck
 

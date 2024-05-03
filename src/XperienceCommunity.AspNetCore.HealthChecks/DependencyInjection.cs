@@ -28,6 +28,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks
                 .AddCheck<WebFarmHealthCheck>("Web Farm Health Check", tags: s_tags)
                 .AddCheck<AzureSearchTaskHealthCheck>("Azure Search Task Health Checks", tags: s_tags)
                 .AddCheck<WebFarmTaskHealthCheck>("Web Farm Task Health Check", tags: s_tags)
+                .AddCheck<EmailHealthCheck>("Email Health Check", tags: s_tags)
                 .AddCheck<LocalSearchTaskHealthCheck>("Local Task Health Check", tags: s_tags);
         }
 
