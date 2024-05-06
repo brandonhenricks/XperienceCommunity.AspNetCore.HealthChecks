@@ -4,7 +4,7 @@ using CMS.DataEngine;
 
 namespace XperienceCommunity.AspNetCore.HealthChecks.Extensions
 {
-    public static class IObjectQueryExtensions
+    internal static class IObjectQueryExtensions
     {
         /// <summary>
         /// Return an IEnumerable of objects from the query.
@@ -16,7 +16,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.Extensions
         /// <returns>An IEnumerable of objects from the query.</returns>
         /// <exception cref="ArgumentNullException">Thrown when the query is null.</exception>
         [return: NotNull]
-        public static async Task<List<TObject>> ToListAsync<TQuery, TObject>(this IObjectQuery<TQuery, TObject> query, CancellationToken cancellationToken = default)
+        internal static async Task<List<TObject>> ToListAsync<TQuery, TObject>(this IObjectQuery<TQuery, TObject> query, CancellationToken cancellationToken = default)
             where TQuery : IObjectQuery<TQuery, TObject>
             where TObject : BaseInfo
         {
@@ -44,7 +44,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.Extensions
             }
             catch (Exception)
             {
-                throw;
+                return new List<TObject>(0);
             }
         }
 
@@ -57,7 +57,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.Extensions
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>The first element of the query, or a default value if the query is empty.</returns>
         /// <exception cref="ArgumentNullException">Thrown when the query is null.</exception>
-        public static async Task<TObject?> FirstOrDefaultAsync<TQuery, TObject>(this IObjectQuery<TQuery, TObject> query, CancellationToken cancellationToken = default)
+        internal static async Task<TObject?> FirstOrDefaultAsync<TQuery, TObject>(this IObjectQuery<TQuery, TObject> query, CancellationToken cancellationToken = default)
             where TQuery : IObjectQuery<TQuery, TObject>
             where TObject : BaseInfo
         {
@@ -85,11 +85,11 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.Extensions
             }
             catch (Exception)
             {
-                throw;
+                return default;
             }
         }
 
-        public static WhereCondition WhereNotNullOrEmpty<TQuery, TObject>(this IObjectQuery<TQuery, TObject> query,
+        internal static WhereCondition WhereNotNullOrEmpty<TQuery, TObject>(this IObjectQuery<TQuery, TObject> query,
             string columnName)
             where TQuery : IObjectQuery<TQuery, TObject>
             where TObject : BaseInfo
