@@ -89,15 +89,25 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.Extensions
             }
         }
 
-        internal static WhereCondition WhereNotNullOrEmpty<TQuery, TObject>(this IObjectQuery<TQuery, TObject> query,
+        /// <summary>
+        /// Filters the object query to include only the objects where the specified column is not null or empty.
+        /// </summary>
+        /// <typeparam name="TQuery">The type of the object query.</typeparam>
+        /// <typeparam name="TObject">The type of the objects in the query.</typeparam>
+        /// <param name="query">The object query.</param>
+        /// <param name="columnName">The name of the column to check for null or empty values.</param>
+        /// <returns>The filtered object query.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when the query is null.</exception>
+        internal static IObjectQuery<TQuery, TObject> WhereNotNullOrEmpty<TQuery, TObject>(this IObjectQuery<TQuery, TObject> query,
             string columnName)
             where TQuery : IObjectQuery<TQuery, TObject>
             where TObject : BaseInfo
         {
-            return new WhereCondition()
-                               .WhereNotNull(columnName)
-                               .Or()
-                               .WhereNotEmpty(columnName);
+            return query
+                .Where(new WhereCondition()
+                    .WhereNotNull(columnName)
+                    .And()
+                    .WhereNotEmpty(columnName));
         }
     }
 }
