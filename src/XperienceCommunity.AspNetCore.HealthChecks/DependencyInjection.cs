@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using XperienceCommunity.AspNetCore.HealthChecks.HealthChecks;
@@ -28,7 +27,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks
                 .AddCheck<ApplicationInitializedHealthCheck>("Application Initialized Health Check", tags: s_tags)
                 .AddCheck<SiteConfigurationHealthCheck>("Site Configuration Health Check", tags: s_tags)
                 .AddCheck<SitePresentationHealthCheck>("Site Presentation Url Health Check", tags: s_tags)
-                .AddCheck<EventLogHealthCheck>("Search Task Health Check", tags: s_tags)
+                .AddCheck<EventLogHealthCheck>("Event Log Health Check", tags: s_tags)
                 .AddCheck<WebFarmHealthCheck>("Web Farm Health Check", tags: s_tags)
                 .AddCheck<AzureSearchTaskHealthCheck>("Azure Search Task Health Checks", tags: s_tags)
                 .AddCheck<WebFarmTaskHealthCheck>("Web Farm Task Health Check", tags: s_tags)
@@ -62,7 +61,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks
                 .AddCheck<ApplicationInitializedHealthCheck>("Application Initialized Health Check", tags: s_tags)
                 .AddCheck<SiteConfigurationHealthCheck>("Site Configuration Health Check", tags: s_tags)
                 .AddCheck<SitePresentationHealthCheck>("Site Presentation Url Health Check", tags: s_tags)
-                .AddCheck<EventLogHealthCheck>("Search Task Health Check", tags: s_tags)
+                .AddCheck<EventLogHealthCheck>("Event Log Health Check", tags: s_tags)
                 .AddCheck<EmailHealthCheck>("Email Health Check", tags: s_tags)
                 .AddCheck<WebFarmHealthCheck>("Web Farm Health Check", tags: s_tags)
                 .AddCheck<AzureSearchTaskHealthCheck>("Azure Search Task Health Checks", tags: s_tags)

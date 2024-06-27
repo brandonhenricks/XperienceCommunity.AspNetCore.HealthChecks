@@ -56,12 +56,10 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             var query = _webFarmTaskInfoProvider
                 .Get()
-                .Where(new WhereCondition()
-                    .WhereNotNull(nameof(WebFarmServerTaskInfo.ErrorMessage))
-                    .Or()
-                    .WhereNotEmpty(nameof(WebFarmServerTaskInfo.ErrorMessage)))
                 .Columns(s_columnNames)
-                .OnSite(SiteContext.CurrentSiteID);
+                .WhereNotNullOrEmpty(nameof(WebFarmServerTaskInfo.ErrorMessage))
+                .OnSite(SiteContext.CurrentSiteID)
+                .TopN(50);
 
             return query.ToList();
         }
@@ -72,12 +70,10 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             {
                 var query = _webFarmTaskInfoProvider
                     .Get()
-                    .Where(new WhereCondition()
-                        .WhereNotNull(nameof(WebFarmServerTaskInfo.ErrorMessage))
-                        .Or()
-                        .WhereNotEmpty(nameof(WebFarmServerTaskInfo.ErrorMessage)))
                     .Columns(s_columnNames)
-                    .OnSite(SiteContext.CurrentSiteID);
+                    .WhereNotNullOrEmpty(nameof(WebFarmServerTaskInfo.ErrorMessage))
+                    .OnSite(SiteContext.CurrentSiteID)
+                    .TopN(50);
 
                 return await query.ToListAsync(cancellationToken: cancellationToken);
             }

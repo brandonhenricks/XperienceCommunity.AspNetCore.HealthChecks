@@ -75,11 +75,8 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             {
                 var query = _searchTaskAzureInfoProvider.Get()
                     .Columns(s_columnNames)
-                    .Where(new WhereCondition()
-                        .WhereNotNull(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage))
-                        .And()
-                        .WhereNotEmpty(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage)));
-
+                    .WhereNotNullOrEmpty(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage));
+                
                 return await query.ToListAsync(cancellationToken: cancellationToken);
             }
         }

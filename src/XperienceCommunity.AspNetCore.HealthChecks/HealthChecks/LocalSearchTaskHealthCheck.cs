@@ -52,11 +52,8 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         protected override IEnumerable<SearchTaskInfo> GetDataForType()
         {
             var query = _searchTaskInfoProvider.Get()
-                    .Where(new WhereCondition()
-                        .WhereNotNull(nameof(SearchTaskInfo.SearchTaskErrorMessage))
-                        .And()
-                        .WhereNotEmpty(nameof(SearchTaskInfo.SearchTaskErrorMessage)))
                     .Columns(s_columnNames)
+                    .WhereNotNullOrEmpty(nameof(SearchTaskInfo.SearchTaskErrorMessage))
                     .OnSite(SiteContext.CurrentSiteID);
 
             return query.ToList();
@@ -67,11 +64,8 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             using (new CMSConnectionScope(true))
             {
                 var query = _searchTaskInfoProvider.Get()
-                    .Where(new WhereCondition()
-                        .WhereNotNull(nameof(SearchTaskInfo.SearchTaskErrorMessage))
-                        .And()
-                        .WhereNotEmpty(nameof(SearchTaskInfo.SearchTaskErrorMessage)))
                     .Columns(s_columnNames)
+                    .WhereNotNullOrEmpty(nameof(SearchTaskInfo.SearchTaskErrorMessage))
                     .OnSite(SiteContext.CurrentSiteID);
 
                 return await query.ToListAsync(cancellationToken: cancellationToken);

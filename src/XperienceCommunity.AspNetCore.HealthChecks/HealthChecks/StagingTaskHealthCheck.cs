@@ -61,14 +61,14 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                             $"apphealth|{SynchronizationInfo.OBJECT_TYPE}"))
                     .ConfigureAwait(false);
 
-                var syncTasks = syncData.ToList();
+                //var syncTasks = syncData;//.ToList();
 
-                if (syncTasks.Count == 0)
+                if (syncData.Count == 0)
                 {
                     return HealthCheckResult.Healthy("No Synchronization Tasks Found.");
                 }
 
-                var syncErrorTasks = syncTasks
+                var syncErrorTasks = syncData
                     .Where(s => stagingTaskIdList.Contains(s.SynchronizationTaskID) &&
                                 !string.IsNullOrWhiteSpace(s.SynchronizationErrorMessage))
                     .ToList();
