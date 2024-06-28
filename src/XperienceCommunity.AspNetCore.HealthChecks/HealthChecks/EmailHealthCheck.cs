@@ -9,6 +9,14 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 {
     public sealed class EmailHealthCheck : BaseKenticoHealthCheck<EmailInfo>, IHealthCheck
     {
+        private static readonly string[] s_columnNames =
+        [
+            nameof(EmailInfo.EmailStatus),
+            nameof(EmailInfo.EmailLastSendAttempt),
+            nameof(EmailInfo.EmailSiteID),
+            nameof(EmailInfo.EmailID)
+        ];
+
         private readonly IEmailInfoProvider _emailInfoProvider;
 
         public EmailHealthCheck(IEmailInfoProvider emailInfoProvider)
@@ -59,7 +67,9 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             using (new CMSConnectionScope(true))
             {
                 var query = _emailInfoProvider.Get()
+                    .Columns(s_columnNames)
                     .WhereEquals(nameof(EmailInfo.EmailStatus), EmailStatusEnum.Waiting)
+                    .TopN(100)
                     .OnSite(SiteContext.CurrentSiteID);
 
                 return await query.ToListAsync(cancellationToken: cancellationToken);
@@ -68,7 +78,8 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
         protected override IReadOnlyDictionary<string, object> GetErrorData(IEnumerable<EmailInfo> objects)
         {
-            var dictionary = objects.ToDictionary<EmailInfo, string, object>(email => email.EmailID.ToString(), email => $"{email.EmailStatus} - {email.EmailLastSendAttempt}");
+            var dictionary = objects.ToDictionary<EmailInfo, string, object>(email => email.EmailID.ToString(),
+                email => $"{email.EmailStatus} - {email.EmailLastSendAttempt}");
 
             return new ReadOnlyDictionary<string, object>(dictionary);
         }
