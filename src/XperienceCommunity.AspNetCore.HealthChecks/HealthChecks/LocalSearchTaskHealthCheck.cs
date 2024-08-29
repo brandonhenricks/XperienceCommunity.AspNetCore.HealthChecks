@@ -66,7 +66,8 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                 var query = _searchTaskInfoProvider.Get()
                     .Columns(s_columnNames)
                     .WhereNotNullOrEmpty(nameof(SearchTaskInfo.SearchTaskErrorMessage))
-                    .OnSite(SiteContext.CurrentSiteID);
+                    .OnSite(SiteContext.CurrentSiteID)
+                    .TopN(100);
 
                 return await query.ToListAsync(cancellationToken: cancellationToken);
             }
