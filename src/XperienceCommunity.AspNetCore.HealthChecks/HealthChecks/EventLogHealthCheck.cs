@@ -82,7 +82,8 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                         .And()
                         .WhereGreaterOrEquals(nameof(EventLogInfo.EventTime), DateTime.UtcNow.AddHours(-12)))
                     .Columns(s_columnNames)
-                    .OnSite(SiteContext.CurrentSiteID);
+                    .OnSite(SiteContext.CurrentSiteID)
+                    .TopN(100);
 
                 return await query.ToListAsync(cancellationToken: cancellationToken);
             }
