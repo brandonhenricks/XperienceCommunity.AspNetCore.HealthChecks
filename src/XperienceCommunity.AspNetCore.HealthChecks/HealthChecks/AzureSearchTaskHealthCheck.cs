@@ -2,6 +2,7 @@
 using CMS.DataEngine;
 using CMS.Search;
 using CMS.Search.Azure;
+using CMS.SiteProvider;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using XperienceCommunity.AspNetCore.HealthChecks.Extensions;
 
@@ -75,7 +76,8 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             {
                 var query = _searchTaskAzureInfoProvider.Get()
                     .Columns(s_columnNames)
-                    .WhereNotNullOrEmpty(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage));
+                    .WhereNotNullOrEmpty(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage))
+                    .TopN(100);
                 
                 return await query.ToListAsync(cancellationToken: cancellationToken);
             }
