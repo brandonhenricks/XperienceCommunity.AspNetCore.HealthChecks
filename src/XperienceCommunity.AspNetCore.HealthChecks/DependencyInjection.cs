@@ -24,19 +24,20 @@ namespace XperienceCommunity.AspNetCore.HealthChecks
         public static IHealthChecksBuilder AddKenticoHealthChecks(this IHealthChecksBuilder builder)
         {
             return builder
-                .AddCheck<ApplicationInitializedHealthCheck>("Application Initialized Health Check", tags: s_tags)
-                .AddCheck<SiteConfigurationHealthCheck>("Site Configuration Health Check", tags: s_tags)
-                .AddCheck<SitePresentationHealthCheck>("Site Presentation Url Health Check", tags: s_tags)
-                .AddCheck<EventLogHealthCheck>("Event Log Health Check", tags: s_tags)
-                .AddCheck<WebFarmHealthCheck>("Web Farm Health Check", tags: s_tags)
-                .AddCheck<AzureSearchTaskHealthCheck>("Azure Search Task Health Checks", tags: s_tags)
-                .AddCheck<WebFarmTaskHealthCheck>("Web Farm Task Health Check", tags: s_tags)
-                .AddCheck<EmailHealthCheck>("Email Health Check", tags: s_tags)
-                .AddCheck<LocalSearchTaskHealthCheck>("Local Task Health Check", tags: s_tags);
+                .AddCheck<ApplicationInitializedHealthCheck>("Application Initialized Health Check", failureStatus: HealthStatus.Unhealthy, tags: s_tags)
+                .AddCheck<SiteConfigurationHealthCheck>("Site Configuration Health Check", failureStatus: HealthStatus.Unhealthy, tags: s_tags)
+                .AddCheck<SitePresentationHealthCheck>("Site Presentation Url Health Check", failureStatus: HealthStatus.Unhealthy, tags: s_tags)
+                .AddCheck<EventLogHealthCheck>("Event Log Health Check", failureStatus: HealthStatus.Degraded, tags: s_tags)
+                .AddCheck<WebFarmHealthCheck>("Web Farm Health Check", failureStatus: HealthStatus.Degraded, tags: s_tags)
+                .AddCheck<AzureSearchTaskHealthCheck>("Azure Search Task Health Checks", failureStatus: HealthStatus.Degraded, tags: s_tags)
+                .AddCheck<WebFarmTaskHealthCheck>("Web Farm Task Health Check", failureStatus: HealthStatus.Unhealthy, tags: s_tags)
+                .AddCheck<EmailHealthCheck>("Email Health Check", failureStatus: HealthStatus.Unhealthy, tags: s_tags)
+                .AddCheck<LocalSearchTaskHealthCheck>("Local Task Health Check", failureStatus: HealthStatus.Degraded, tags: s_tags);
         }
 
         /// <summary>
         /// Adds Kentico Specific Health Checks to the specified <see cref="IServiceCollection"/>.
+        /// Also registers the Health Checks package, and optionally the Event Log Publisher.
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection"/> to add the health checks to.</param>
         /// <param name="useEventLogPublisher">Optionally use the Event Log Publisher.</param>
@@ -58,15 +59,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks
 
             return services
                 .AddHealthChecks()
-                .AddCheck<ApplicationInitializedHealthCheck>("Application Initialized Health Check", tags: s_tags)
-                .AddCheck<SiteConfigurationHealthCheck>("Site Configuration Health Check", tags: s_tags)
-                .AddCheck<SitePresentationHealthCheck>("Site Presentation Url Health Check", tags: s_tags)
-                .AddCheck<EventLogHealthCheck>("Event Log Health Check", tags: s_tags)
-                .AddCheck<EmailHealthCheck>("Email Health Check", tags: s_tags)
-                .AddCheck<WebFarmHealthCheck>("Web Farm Health Check", tags: s_tags)
-                .AddCheck<AzureSearchTaskHealthCheck>("Azure Search Task Health Checks", tags: s_tags)
-                .AddCheck<WebFarmTaskHealthCheck>("Web Farm Task Health Check", tags: s_tags)
-                .AddCheck<LocalSearchTaskHealthCheck>("Local Task Health Check", tags: s_tags);
+                .AddKenticoHealthChecks();
         }
     }
 }
