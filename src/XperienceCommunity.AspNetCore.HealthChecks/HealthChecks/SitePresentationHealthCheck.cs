@@ -25,7 +25,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             if (!CMSApplication.ApplicationInitialized.HasValue)
             {
-                return HealthCheckResult.Healthy("Site Presentation Url Has Been Configured.");
+                return HealthCheckResult.Degraded("Site Presentation Url Has Been Configured.");
             }
 
             using (new CMSConnectionScope(true))
@@ -34,7 +34,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
                 if (currentSite == null)
                 {
-                    return HealthCheckResult.Unhealthy("The current site is not configured.");
+                    return GetHealthCheckResult(context, "The current site is not configured.");
                 }
 
                 try
@@ -76,7 +76,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                         }
                     }
 
-                    return HealthCheckResult.Unhealthy("The current site is not configured correctly.");
+                    return GetHealthCheckResult(context, "The current site is not configured correctly.");
                 }
                 catch (Exception e)
                 {

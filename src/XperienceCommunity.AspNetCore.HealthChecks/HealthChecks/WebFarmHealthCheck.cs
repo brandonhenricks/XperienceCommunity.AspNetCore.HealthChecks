@@ -14,7 +14,6 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
     {
         private readonly IWebFarmServerInfoProvider _webFarmServerInfoProvider;
 
-
         public WebFarmHealthCheck(IWebFarmServerInfoProvider webFarmServerInfoProvider)
         {
             _webFarmServerInfoProvider = webFarmServerInfoProvider;
@@ -25,7 +24,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             if (!CMSApplication.ApplicationInitialized.HasValue)
             {
-                return HealthCheckResult.Healthy("Application is not Initialized.");
+                return HealthCheckResult.Degraded("Application is not Initialized.");
             }
 
             try
@@ -34,14 +33,14 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
                 if (webFarmServers.Count == 0)
                 {
-                    return HealthCheckResult.Degraded("No Web Farm Info Returned");
+                    return GetHealthCheckResult(context, "No Web Farm Info Returned");
                 }
 
                 foreach (var server in webFarmServers)
                 {
                     if (server.Status == WebFarmServerStatusEnum.NotResponding)
                     {
-                        return HealthCheckResult.Degraded($"Server {server.ServerName} is not responding.", null,
+                        return GetHealthCheckResult(context, $"Server {server.ServerName} is not responding.",
                             GetData(webFarmServers));
                     }
                 }
@@ -67,7 +66,8 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             {
                 var query = _webFarmServerInfoProvider
                     .Get()
-                    .OnSite(SiteContext.CurrentSiteID);
+                    .OnSite(SiteContext.CurrentSiteID)
+                    .TopN(100);
 
                 return await query.ToListAsync(cancellationToken: cancellationToken);
             }

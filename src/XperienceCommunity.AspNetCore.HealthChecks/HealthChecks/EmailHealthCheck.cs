@@ -29,7 +29,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             if (!CMSApplication.ApplicationInitialized.HasValue)
             {
-                return HealthCheckResult.Healthy("Application is not Initialized.");
+                return HealthCheckResult.Degraded("Application is not Initialized.");
             }
 
             try
@@ -45,7 +45,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
                 if (filtered.Count > 0)
                 {
-                    return HealthCheckResult.Degraded("Email Items are not being sent.", data: GetErrorData(filtered));
+                    return GetHealthCheckResult(context, "Email Items are not being sent.", data: GetErrorData(filtered));
                 }
 
                 return HealthCheckResult.Healthy("Email Items Appear to be Healthy.");

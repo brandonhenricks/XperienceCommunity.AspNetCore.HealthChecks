@@ -55,5 +55,25 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                 _ => HealthCheckResult.Unhealthy(ex.Message, ex)
             };
         }
+
+        /// <summary>
+        /// Gets the health check result based on the provided context and message.
+        /// </summary>
+        /// <param name="context">The health check context.</param>
+        /// <param name="message">The message to include in the health check result.</param>
+        /// <param name="data">Optional. Additional data to include in the health check result.</param>
+        /// <returns>The health check result.</returns>
+        public HealthCheckResult GetHealthCheckResult(HealthCheckContext context, string message,
+            IReadOnlyDictionary<string, object>? data = null)
+        {
+            var failureStatus = context?.Registration?.FailureStatus ?? HealthStatus.Unhealthy;
+
+            return failureStatus switch
+            {
+                HealthStatus.Unhealthy => HealthCheckResult.Unhealthy(message, null, data),
+                HealthStatus.Degraded => HealthCheckResult.Degraded(message, null, data),
+                _ => HealthCheckResult.Unhealthy(message, null, data)
+            };
+        }
     }
 }

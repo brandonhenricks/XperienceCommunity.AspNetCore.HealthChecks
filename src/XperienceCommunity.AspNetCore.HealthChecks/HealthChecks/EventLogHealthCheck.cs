@@ -27,7 +27,8 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
         public EventLogHealthCheck(IEventLogInfoProvider eventLogInfoProvider)
         {
-            _eventLogInfoProvider = eventLogInfoProvider ?? throw new ArgumentNullException(nameof(eventLogInfoProvider));
+            _eventLogInfoProvider =
+                eventLogInfoProvider ?? throw new ArgumentNullException(nameof(eventLogInfoProvider));
         }
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context,
@@ -47,7 +48,10 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                     .OrderByDescending(x => x.EventID)
                     .ToList();
 
-                return exceptionEvents.Count >= 25 ? HealthCheckResult.Degraded($"There are {exceptionEvents.Count} errors in the event log.", null, GetErrorData(exceptionEvents)) : HealthCheckResult.Healthy();
+                return exceptionEvents.Count >= 25
+                    ? GetHealthCheckResult(context, $"There are {exceptionEvents.Count} errors in the event log.",
+                        GetErrorData(exceptionEvents))
+                    : HealthCheckResult.Healthy();
             }
             catch (Exception e)
             {
@@ -70,7 +74,8 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             return query.ToList();
         }
 
-        protected override async Task<List<EventLogInfo>> GetDataForTypeAsync(CancellationToken cancellationToken = default)
+        protected override async Task<List<EventLogInfo>> GetDataForTypeAsync(
+            CancellationToken cancellationToken = default)
         {
             using (new CMSConnectionScope(true))
             {
@@ -91,7 +96,9 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
         protected override IReadOnlyDictionary<string, object> GetErrorData(IEnumerable<EventLogInfo> objects)
         {
-            var dictionary = objects.ToDictionary<EventLogInfo, string, object>(e => e.EventID.ToString(), ev => ev.EventDescription);
+            var dictionary =
+                objects.ToDictionary<EventLogInfo, string, object>(e => e.EventID.ToString(),
+                    ev => ev.EventDescription);
 
             return new ReadOnlyDictionary<string, object>(dictionary);
         }

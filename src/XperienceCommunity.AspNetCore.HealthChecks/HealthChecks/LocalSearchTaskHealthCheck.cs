@@ -20,7 +20,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             nameof(SearchTaskInfo.SearchTaskErrorMessage),
             nameof(SearchTaskInfo.SearchTaskID)
         ];
-        
+
         public LocalSearchTaskHealthCheck(ISearchTaskInfoProvider searchTaskInfoProvider)
         {
             _searchTaskInfoProvider = searchTaskInfoProvider ?? throw new ArgumentNullException(nameof(searchTaskInfoProvider));
@@ -30,7 +30,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             if (!CMSApplication.ApplicationInitialized.HasValue)
             {
-                return HealthCheckResult.Healthy();
+                return HealthCheckResult.Degraded();
             }
             try
             {
@@ -41,7 +41,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                     return HealthCheckResult.Healthy();
                 }
 
-                return HealthCheckResult.Degraded("Local Search Tasks Contain Errors.", data: GetErrorData(searchTasks));
+                return GetHealthCheckResult(context, "Local Search Tasks Contain Errors.", data: GetErrorData(searchTasks));
             }
             catch (Exception e)
             {

@@ -31,7 +31,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.Extensions
                     .GetEnumerableTypedResultAsync(commandBehavior: CommandBehavior.Default, true,
                         cancellationToken: cancellationToken);
 
-                return results?.ToList() ?? new List<TObject>(0);
+                return results?.ToList() ?? [];
             }
             catch (InvalidOperationException)
             {
@@ -40,11 +40,11 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.Extensions
                     .GetEnumerableTypedResultAsync(commandBehavior: CommandBehavior.CloseConnection, true,
                         cancellationToken: cancellationToken);
 
-                return results?.ToList() ?? new List<TObject>(0);
+                return results?.ToList() ?? [];
             }
             catch (Exception)
             {
-                return new List<TObject>(0);
+                return [];
             }
         }
 
