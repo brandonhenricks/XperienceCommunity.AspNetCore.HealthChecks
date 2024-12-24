@@ -2,7 +2,6 @@
 using CMS.DataEngine;
 using CMS.Search;
 using CMS.Search.Azure;
-using CMS.SiteProvider;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using XperienceCommunity.AspNetCore.HealthChecks.Extensions;
 
@@ -18,7 +17,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
         private static readonly string[] s_columnNames =
         [
-            nameof(SearchTaskAzureInfo.SearchTaskAzureID), 
+            nameof(SearchTaskAzureInfo.SearchTaskAzureID),
             nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage),
             nameof(SearchTaskAzureInfo.SearchTaskAzureType),
             nameof(SearchTaskAzureInfo.SearchTaskAzureAdditionalData)
@@ -49,7 +48,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                 var errorTasks = searchTasks
                     .Where(searchTask => !string.IsNullOrEmpty(searchTask.SearchTaskAzureErrorMessage)).ToList();
 
-                return errorTasks.Count == 0 ? HealthCheckResult.Healthy() : HealthCheckResult.Degraded("Azure Search Tasks Contain Errors.", data: GetErrorData(errorTasks));
+                return errorTasks.Count == 0 ? HealthCheckResult.Healthy() : GetHealthCheckResult(context, "Azure Search Tasks Contain Errors.", data: GetErrorData(errorTasks));
             }
             catch (Exception e)
             {
@@ -78,7 +77,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                     .Columns(s_columnNames)
                     .WhereNotNullOrEmpty(nameof(SearchTaskAzureInfo.SearchTaskAzureErrorMessage))
                     .TopN(100);
-                
+
                 return await query.ToListAsync(cancellationToken: cancellationToken);
             }
         }

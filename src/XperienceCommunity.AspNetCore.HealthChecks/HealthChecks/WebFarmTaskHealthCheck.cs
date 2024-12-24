@@ -19,7 +19,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
             nameof(WebFarmServerTaskInfo.ErrorMessage),
             nameof(WebFarmServerTaskInfo.TaskID)
         ];
-        
+
         public WebFarmTaskHealthCheck(IWebFarmServerTaskInfoProvider webFarmTaskInfoProvider)
         {
             _webFarmTaskInfoProvider = webFarmTaskInfoProvider ?? throw new ArgumentNullException(nameof(webFarmTaskInfoProvider));
@@ -32,7 +32,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
             if (!CMSApplication.ApplicationInitialized.HasValue)
             {
-                return result;
+                return HealthCheckResult.Degraded("Application Is not Initialized");
             }
 
             try
@@ -41,7 +41,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
                 if (data.Count != 0)
                 {
-                    result = HealthCheckResult.Degraded("Web Farm Tasks Contain Errors.", null, GetErrorData(data));
+                    result = GetHealthCheckResult(context, "Web Farm Tasks Contain Errors.", GetErrorData(data));
                 }
 
                 return result;

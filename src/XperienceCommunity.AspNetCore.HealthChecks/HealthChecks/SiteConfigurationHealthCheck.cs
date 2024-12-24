@@ -22,15 +22,15 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             if (!CMSApplication.ApplicationInitialized.HasValue)
             {
-                return HealthCheckResult.Healthy();
+                return HealthCheckResult.Degraded();
             }
-            
+
             try
             {
                 var sites = await GetDataForTypeAsync(cancellationToken);
 
                 return sites.Count == 0 ?
-                    HealthCheckResult.Unhealthy("There are no sites configured.")
+                    GetHealthCheckResult(context, "There are no sites configured.")
                     : HealthCheckResult.Healthy("Sites have been added to the CMS.");
             }
             catch (Exception e)
@@ -42,7 +42,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         protected override IEnumerable<SiteInfo> GetDataForType()
         {
             var query = _siteInfoProvider.Get();
-            
+
             return query.ToList();
         }
 
