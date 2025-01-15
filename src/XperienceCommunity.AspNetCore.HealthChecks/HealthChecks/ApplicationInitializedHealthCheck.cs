@@ -9,7 +9,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             if (!CMSApplication.ApplicationInitialized.HasValue)
             {
-                return Task.FromResult(HealthCheckResult.Degraded("Application is not Initialized."));
+                return Task.FromResult(new HealthCheckResult(status: context.Registration.FailureStatus, "Application is not Initialized."));
             }
 
             if (CMSApplication.ApplicationInitialized.Value)
@@ -17,7 +17,7 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                 return Task.FromResult(HealthCheckResult.Healthy("Application is Initialized."));
             }
 
-            return Task.FromResult(HealthCheckResult.Unhealthy(CMSApplication.ApplicationErrorMessage));
+            return Task.FromResult(new HealthCheckResult(status: context.Registration.FailureStatus, CMSApplication.ApplicationErrorMessage));
         }
     }
 }
