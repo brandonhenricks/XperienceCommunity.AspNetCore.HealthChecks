@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using CMS.DataEngine;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using XperienceCommunity.AspNetCore.HealthChecks.Extensions;
 
 namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 {
@@ -11,11 +12,16 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context,
             CancellationToken cancellationToken = new CancellationToken())
         {
+            if (!CMSApplication.ApplicationInitialized.HasValue)
+            {
+                return HealthCheckResult.Healthy();
+            }
+
             var status = HealthCheckResult.Healthy("E-mail Configured Correctly");
 
             try
             {
-                var settingKeys = await GetDataForTypeAsync(cancellationToken);
+                var settingKeys = GetDataForType().ToList();
 
                 if (settingKeys.Count == 0)
                 {
@@ -23,7 +29,8 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
                 }
 
                 var filteredKeys = settingKeys.Where(key =>
-                    key.KeyValue.Contains(EmailDefaultDomain, StringComparison.OrdinalIgnoreCase)).ToList();
+                    !string.IsNullOrEmpty(key.KeyValue) && key.KeyValue.Contains(EmailDefaultDomain, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
 
                 if (filteredKeys.Count > 0)
                 {
@@ -41,7 +48,11 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
 
         protected override IEnumerable<SettingsKeyInfo> GetDataForType()
         {
-            throw new NotImplementedException();
+            var query = SettingsKeyInfoProvider
+                    .GetSettingsKeys()
+                    .WhereContains(nameof(SettingsKeyInfo.KeyName), "email");
+
+            return query.ToList();
         }
 
         protected override async Task<List<SettingsKeyInfo>> GetDataForTypeAsync(
@@ -49,12 +60,11 @@ namespace XperienceCommunity.AspNetCore.HealthChecks.HealthChecks
         {
             using (new CMSConnectionScope(true))
             {
-                var query = await SettingsKeyInfoProvider
+                var query = SettingsKeyInfoProvider
                     .GetSettingsKeys()
-                    .WhereContains(nameof(SettingsKeyInfo.KeyName), "email")
-                    .GetEnumerableTypedResultAsync(cancellationToken: cancellationToken);
+                    .WhereContains(nameof(SettingsKeyInfo.KeyName), "email");
 
-                return query.ToList();
+                return await query.ToListAsync(cancellationToken: cancellationToken);
             }
         }
 
