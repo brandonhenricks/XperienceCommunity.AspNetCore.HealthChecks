@@ -31,7 +31,8 @@ namespace XperienceCommunity.AspNetCore.HealthChecks
                 .AddCheck<WebFarmHealthCheck>("Web Farm Health Check", failureStatus: HealthStatus.Degraded, tags: s_tags)
                 .AddCheck<AzureSearchTaskHealthCheck>("Azure Search Task Health Checks", failureStatus: HealthStatus.Degraded, tags: s_tags)
                 .AddCheck<WebFarmTaskHealthCheck>("Web Farm Task Health Check", failureStatus: HealthStatus.Unhealthy, tags: s_tags)
-                .AddCheck<EmailHealthCheck>("Email Health Check", failureStatus: HealthStatus.Unhealthy, tags: s_tags)
+                .AddCheck<EmailHealthCheck>("Email Queue Health Check", failureStatus: HealthStatus.Unhealthy, tags: s_tags)
+                .AddCheck<EmailSettingsHealthCheck>("Email Settings Health Check", failureStatus: HealthStatus.Degraded, tags: s_tags)
                 .AddCheck<LocalSearchTaskHealthCheck>("Local Task Health Check", failureStatus: HealthStatus.Degraded, tags: s_tags);
         }
 
